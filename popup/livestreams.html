@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <style>
+      html,
+      body {
+    
+        background-color: black;
+        color:white
+      }
+      .dropdown-content {
+        background-color: black;
+      }
+      .game-title {
+        font-weight: bold;
+        margin-top:10px;
+      }
+      .game-category{
+        margin:10px;
+        display: grid;
+        grid-template-columns: 1fr min-content;
+        border-top: 3px solid aqua;
+      }
+      .stream-link {
+        color:white;
+        grid-column: 1;
+      }
+
+      .stream-view-count {
+        grid-column: 2;
+      }
+      .hidden {
+        visibility: hidden;
+      }
+    </style>
+  </head>
+
+  <body>
+    
+      <div class="dropdown-content" id="dropdown-content">
+        <div class="hidden" id="error"></div>
+      </div>
+      <script src="fetchData.js"></script>
+  </body>
+</html>
