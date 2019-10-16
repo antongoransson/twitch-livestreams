@@ -1,35 +1,19 @@
 {
 
-  "description": "Adds a browser action icon to the toolbar. Click the button to choose a beast. The active tab's body content is then replaced with a picture of the chosen beast. See https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Examples#beastify",
+  "description": "Adds a popup to the toolbar. After setting your twitch username in the settings of the extension the popup will show all the streams you follow that are live right now. It is grouped by game and each stream is linked to.",
   "manifest_version": 2,
   "name": "TwitchLiveFollowedStreams",
   "version": "1.0",
-  "homepage_url": "https://github.com/mdn/webextensions-examples/tree/master/TwitchLiveFollowedStreams",
   "icons": {
     "48": "icons/twitch_48.png"
   },
   "options_ui": {
     "page": "options/options.html"
   },
-
   "permissions": ["storage"],
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "addon@example.com",
-      "strict_min_version": "42.0"
-    }
-  },
   "browser_action": {
     "default_icon": "icons/twitch_32.png",
-    "theme_icons": [{
-        "light": "icons/twitch_32.png",
-        "dark": "icons/twitch_32.png",
-        "size": 32
-    }],
     "default_title": "Livestreams",
     "default_popup": "popup/livestreams.html"
-  },
-  "background": {
-    "scripts": ["background.js"]
   }
 }

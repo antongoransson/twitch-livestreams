@@ -58,6 +58,7 @@ function showErrorMessage() {
     "Make sure you have put the correct username in the extension settings"
   );
   document.getElementById("error").appendChild(errorText);
+  document.getElementById("spinning-loader").setAttribute("class", "hidden");
 }
 
 function getUrlParametersAsString(liveStreams, attrName, keyName) {
@@ -112,7 +113,7 @@ async function getData() {
   const gameNames = await getGameNames(liveStreams);
   const streamList = document.getElementById("dropdown-content");
 
-  let sortedGames = Object.keys(liveStreamsGroupedByGameId).sort((a, b) =>
+  const sortedGames = Object.keys(liveStreamsGroupedByGameId).sort((a, b) =>
     (gameNames[a] || "").localeCompare(gameNames[b] || "")
   );
 
@@ -131,5 +132,6 @@ async function getData() {
     });
     streamList.appendChild(div);
   });
+  document.getElementById("spinning-loader").setAttribute("class", "hidden");
 }
 getData();
