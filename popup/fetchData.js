@@ -89,13 +89,8 @@ async function getLiveStreams(fromId) {
     pagination = followedStreams.pagination;
     const liveStreamsUrl = getFollowedStreamsUrl(followedStreams.data);
     const liveStreams = await doGetRequest(liveStreamsUrl);
-    allLiveStreams = [...allLiveStreams, ...liveStreams.data];
-  } while (
-    followedStreams.total > 100 &&
-    followedStreams.data &&
-    followedStreams.data.length === 100
-  );
-
+    allLiveStreams = allLiveStreams.concat(liveStreams.data);
+  } while (followedStreams.total > 100 && followedStreams.data.length === 100);
   allLiveStreams.sort((a, b) => b.viewer_count - a.viewer_count);
   return allLiveStreams;
 }
@@ -109,8 +104,8 @@ async function getData() {
   document.getElementById("error").setAttribute("class", "hidden");
 
   const liveStreams = await getLiveStreams(fromId);
-  const liveStreamsGroupedByGameId = groupLiveStreamsById(liveStreams);
   const gameNames = await getGameNames(liveStreams);
+  const liveStreamsGroupedByGameId = groupLiveStreamsById(liveStreams);
   const streamList = document.getElementById("dropdown-content");
 
   const sortedGames = Object.keys(liveStreamsGroupedByGameId).sort((a, b) =>
@@ -124,10 +119,10 @@ async function getData() {
     div.appendChild(textSpan);
     liveStreamsGroupedByGameId[key].forEach(stream => {
       const link = createStreamLink(stream);
-      div.appendChild(link);
       const span = document.createElement("span");
       span.appendChild(document.createTextNode(stream.viewer_count));
       span.setAttribute("class", "stream-view-count");
+      div.appendChild(link);
       div.appendChild(span);
     });
     streamList.appendChild(div);
