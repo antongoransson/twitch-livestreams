@@ -18,7 +18,6 @@ body {
 }
 .stream-link {
   color: white;
-  grid-column: 1;
 }
 
 .stream-view-count {
@@ -28,12 +27,42 @@ body {
   visibility: hidden;
 }
 
+.stream-link-container {
+  grid-column: 1;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  background-color: black;
+  width: 200px;
+  color: #fff;
+  text-align: center;
+  padding: 5px 3px;
+  border-radius: 6px;
+  border: 1px solid white;
+  position: absolute;
+  z-index: 1;
+  bottom: 100%;
+  left: 25px;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
 /* Loader from https://loading.io/css/ */
 .lds-hourglass {
   display: inline-block;
   position: relative;
-  width: 64px;
-  height: 64px;
+  width: 32px;
+  height: 32px;
 }
 .lds-hourglass:after {
   content: " ";
@@ -41,9 +70,9 @@ body {
   border-radius: 50%;
   width: 0;
   height: 0;
-  margin: 6px;
+  margin: 3px;
   box-sizing: border-box;
-  border: 26px solid #fff;
+  border: 15px solid #fff;
   border-color: #fff transparent #fff transparent;
   animation: lds-hourglass 1.2s infinite;
 }

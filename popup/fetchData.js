@@ -1,3 +1,4 @@
+const BASE_URL = "https://api.twitch.tv/helix/";
 async function doGetRequest(url) {
   const headers = new Headers({
     "Client-ID": "rw3b9oz0ukowvdsvu58g335gqh8q1g"
@@ -8,12 +9,12 @@ async function doGetRequest(url) {
 }
 
 async function getUserId() {
-  const url = "https://api.twitch.tv/helix/users?login=";
   const { twitchUsername } = await browser.storage.local.get();
   if (twitchUsername === undefined) {
     return null;
   }
-  const userInfo = await doGetRequest(url + twitchUsername);
+  const getUserInfoUrl = `${BASE_URL}users?login=${twitchUsername}`;
+  const userInfo = await doGetRequest(getUserInfoUrl);
   if (userInfo.data && userInfo.data.length > 0) {
     return userInfo.data[0].id;
   }
@@ -22,7 +23,7 @@ async function getUserId() {
 
 function getFollowedStreamsUrl(data) {
   const streamIds = getUrlParametersAsString(data, "user_id", "to_id");
-  return "https://api.twitch.tv/helix/streams?" + streamIds;
+  return `${BASE_URL}streams?${streamIds}`;
 }
 
 function groupLiveStreamsById(liveStreams) {
@@ -37,12 +38,26 @@ function groupLiveStreamsById(liveStreams) {
   return liveStreamsGroupedByGameId;
 }
 
-function createStreamLink(stream) {
+function createStreamLink(streamerUserName) {
   const link = document.createElement("a");
-  link.setAttribute("href", "https://www.twitch.tv/" + stream.user_name);
-  link.setAttribute("class", "stream-link");
-  link.appendChild(document.createTextNode(stream.user_name));
+  const trimmedUserName = streamerUserName.replace(/\s+/g, "");
+  link.setAttribute("href", "https://www.twitch.tv/" + trimmedUserName);
+  link.setAttribute("class", "stream-link tooltip");
+  link.appendChild(document.createTextNode(streamerUserName));
   return link;
+}
+
+function createStreamContainerDiv() {
+  const linkContainerDiv = document.createElement("div");
+  linkContainerDiv.setAttribute("class", "stream-link-container");
+  return linkContainerDiv;
+}
+
+function createToolTipText(text) {
+  const toolTipText = document.createElement("span");
+  toolTipText.appendChild(document.createTextNode(text));
+  toolTipText.setAttribute("class", "tooltiptext");
+  return toolTipText;
 }
 
 function createSpanGameTitle(gameName) {
@@ -50,6 +65,13 @@ function createSpanGameTitle(gameName) {
   textSpan.setAttribute("class", "game-title");
   textSpan.appendChild(document.createTextNode(gameName));
   return textSpan;
+}
+
+function createSpanViewerCount(viewerCount) {
+  const span = document.createElement("span");
+  span.appendChild(document.createTextNode(viewerCount));
+  span.setAttribute("class", "stream-view-count");
+  return span;
 }
 
 function showErrorMessage() {
@@ -69,7 +91,7 @@ function getUrlParametersAsString(liveStreams, attrName, keyName) {
 
 async function getGameNames(liveStreams) {
   const gameIds = getUrlParametersAsString(liveStreams, "id", "game_id");
-  const gamesUrl = "https://api.twitch.tv/helix/games?" + gameIds;
+  const gamesUrl = BASE_URL + "games?" + gameIds;
   const gamesInfo = await doGetRequest(gamesUrl);
   return gamesInfo.data.reduce((acc, curr) => {
     acc[curr.id] = curr.name;
@@ -82,7 +104,7 @@ async function getLiveStreams(fromId) {
   let pagination = "";
   let followedStreams;
   do {
-    const followedStreamsUrl = `https://api.twitch.tv/helix/users/follows?from_id=${fromId}&first=100${
+    const followedStreamsUrl = `${BASE_URL}users/follows?from_id=${fromId}&first=100${
       pagination ? "&after=" + pagination.cursor : ""
     }`;
     followedStreams = await doGetRequest(followedStreamsUrl);
@@ -118,12 +140,14 @@ async function getData() {
     div.setAttribute("class", "game-category");
     div.appendChild(textSpan);
     liveStreamsGroupedByGameId[key].forEach(stream => {
-      const link = createStreamLink(stream);
-      const span = document.createElement("span");
-      span.appendChild(document.createTextNode(stream.viewer_count));
-      span.setAttribute("class", "stream-view-count");
-      div.appendChild(link);
-      div.appendChild(span);
+      const streamContainerDiv = createStreamContainerDiv();
+      const link = createStreamLink(stream.user_name);
+      const viewerCountSpan = createSpanViewerCount(stream.viewer_count);
+      const toolTipText = createToolTipText(stream.title);
+      link.appendChild(toolTipText);
+      streamContainerDiv.appendChild(link);
+      div.appendChild(streamContainerDiv);
+      div.appendChild(viewerCountSpan);
     });
     streamList.appendChild(div);
   });
