@@ -1,20 +1,25 @@
 html,
 body {
   background-color: black;
-  color: white;
+  color: white; 
+  padding-right : 15px
 }
+
 .dropdown-content {
   background-color: black;
+  width: 380px;
 }
+
 .game-title {
   font-weight: bold;
-  margin-top: 10px;
+  font-size: 18px;
 }
+
 .game-category {
-  margin: 10px;
   display: grid;
   grid-template-columns: 1fr min-content;
-  border-top: 3px solid aqua;
+  margin-left: 10px;
+  grid-column: 2;
 }
 .stream-link {
   color: white;
@@ -22,6 +27,7 @@ body {
 
 .stream-view-count {
   grid-column: 2;
+  text-align: right;
 }
 .hidden {
   visibility: hidden;
@@ -29,6 +35,18 @@ body {
 
 .stream-link-container {
   grid-column: 1;
+}
+
+.box-art-logo {
+  grid-column: 1;
+}
+
+.test {
+  display: grid;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  border-top: 3px solid aqua;
+  grid-template-columns: min-content 1fr;
 }
 
 .tooltip {
@@ -48,8 +66,9 @@ body {
   border: 1px solid white;
   position: absolute;
   z-index: 1;
-  bottom: 100%;
-  left: 25px;
+
+  left: 35px;
+  top: -25px;
 }
 
 /* Show the tooltip text when you mouse over the tooltip container */
@@ -76,6 +95,7 @@ body {
   border-color: #fff transparent #fff transparent;
   animation: lds-hourglass 1.2s infinite;
 }
+
 @keyframes lds-hourglass {
   0% {
     transform: rotate(0);

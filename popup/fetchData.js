@@ -9,14 +9,19 @@ async function doGetRequest(url) {
 }
 
 async function getUserId() {
-  const { twitchUsername } = await browser.storage.local.get();
+  const { twitchUsername, twitchUserId } = await browser.storage.local.get();
   if (twitchUsername === undefined) {
     return null;
+  }
+  if (twitchUserId !== null) {
+    return twitchUserId;
   }
   const getUserInfoUrl = `${BASE_URL}users?login=${twitchUsername}`;
   const userInfo = await doGetRequest(getUserInfoUrl);
   if (userInfo.data && userInfo.data.length > 0) {
-    return userInfo.data[0].id;
+    const userId = userInfo.data[0].id;
+    browser.storage.local.set({ twitchUserId: userId })
+    return userId;
   }
   return null;
 }
@@ -74,6 +79,20 @@ function createSpanViewerCount(viewerCount) {
   return span;
 }
 
+function createGameBoxArt(url) {
+  const size = 40;
+  const width = 60;
+  const height = 80;
+  let url1 = url.replace("{width}", width).replace("{height}", height);
+  const img = document.createElement("img");
+  console.log(url1);
+  
+ // span.appendChild(document.createTextNode(viewerCount));
+  img.setAttribute("src", url1);
+  img.setAttribute("class", "box-art-logo")
+  return img;
+}
+
 function showErrorMessage() {
   document.getElementById("error").setAttribute("class", "");
   const errorText = document.createTextNode(
@@ -93,8 +112,10 @@ async function getGameNames(liveStreams) {
   const gameIds = getUrlParametersAsString(liveStreams, "id", "game_id");
   const gamesUrl = BASE_URL + "games?" + gameIds;
   const gamesInfo = await doGetRequest(gamesUrl);
+  console.log(gamesInfo);
+  
   return gamesInfo.data.reduce((acc, curr) => {
-    acc[curr.id] = curr.name;
+    acc[curr.id] = { name: curr.name, boxArtUrl: curr.box_art_url };
     return acc;
   }, {});
 }
@@ -129,15 +150,21 @@ async function getData() {
   const gameNames = await getGameNames(liveStreams);
   const liveStreamsGroupedByGameId = groupLiveStreamsById(liveStreams);
   const streamList = document.getElementById("dropdown-content");
+console.log(gameNames);
 
   const sortedGames = Object.keys(liveStreamsGroupedByGameId).sort((a, b) =>
-    (gameNames[a] || "").localeCompare(gameNames[b] || "")
+    (gameNames[a].name || "").localeCompare(gameNames[b].name || "")
   );
 
   sortedGames.forEach(key => {
-    const textSpan = createSpanGameTitle(gameNames[key]);
+    const textSpan = createSpanGameTitle(gameNames[key].name);
     const div = document.createElement("div");
     div.setAttribute("class", "game-category");
+    const img = createGameBoxArt(gameNames[key].boxArtUrl)
+    const test = document.createElement("div");
+    test.appendChild(img)
+    test.appendChild(div)
+    test.setAttribute("class", "test")
     div.appendChild(textSpan);
     liveStreamsGroupedByGameId[key].forEach(stream => {
       const streamContainerDiv = createStreamContainerDiv();
@@ -149,8 +176,10 @@ async function getData() {
       div.appendChild(streamContainerDiv);
       div.appendChild(viewerCountSpan);
     });
-    streamList.appendChild(div);
+    test.appendChild(div)
+    streamList.appendChild(test);
   });
+  document.getElementById("dropdown-content").setAttribute("class", "dropdown-content");
   document.getElementById("spinning-loader").setAttribute("class", "hidden");
 }
 getData();

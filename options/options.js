@@ -1,7 +1,8 @@
 function saveOptions(e) {
   e.preventDefault();
   browser.storage.local.set({
-    twitchUsername: document.querySelector("#twitchUsername").value
+    twitchUsername: document.querySelector("#twitchUsername").value,
+    twitchUserId: null
   });
 }
 
