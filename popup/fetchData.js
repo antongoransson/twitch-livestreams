@@ -20,7 +20,7 @@ async function getUserId() {
   const userInfo = await doGetRequest(getUserInfoUrl);
   if (userInfo.data && userInfo.data.length > 0) {
     const userId = userInfo.data[0].id;
-    browser.storage.local.set({ twitchUserId: userId })
+    browser.storage.local.set({ twitchUserId: userId });
     return userId;
   }
   return null;
@@ -66,8 +66,12 @@ function createToolTipText(text) {
 }
 
 function createSpanGameTitle(gameName) {
-  const textSpan = document.createElement("span");
+  const textSpan = document.createElement("a");
   textSpan.setAttribute("class", "game-title");
+  textSpan.setAttribute(
+    "href",
+    `https://www.twitch.tv/directory/game/${gameName}`
+  );
   textSpan.appendChild(document.createTextNode(gameName));
   return textSpan;
 }
@@ -79,18 +83,21 @@ function createSpanViewerCount(viewerCount) {
   return span;
 }
 
-function createGameBoxArt(url) {
-  const size = 40;
+function createGameBoxArt(url, gameName) {
   const width = 60;
   const height = 80;
+  const link = document.createElement("a");
+  link.setAttribute("href", `https://www.twitch.tv/directory/game/${gameName}`);
+
   let url1 = url.replace("{width}", width).replace("{height}", height);
   const img = document.createElement("img");
   console.log(url1);
-  
- // span.appendChild(document.createTextNode(viewerCount));
+
+  // span.appendChild(document.createTextNode(viewerCount));
   img.setAttribute("src", url1);
-  img.setAttribute("class", "box-art-logo")
-  return img;
+  img.setAttribute("class", "box-art-logo");
+  link.appendChild(img);
+  return link;
 }
 
 function showErrorMessage() {
@@ -113,7 +120,7 @@ async function getGameNames(liveStreams) {
   const gamesUrl = BASE_URL + "games?" + gameIds;
   const gamesInfo = await doGetRequest(gamesUrl);
   console.log(gamesInfo);
-  
+
   return gamesInfo.data.reduce((acc, curr) => {
     acc[curr.id] = { name: curr.name, boxArtUrl: curr.box_art_url };
     return acc;
@@ -150,36 +157,57 @@ async function getData() {
   const gameNames = await getGameNames(liveStreams);
   const liveStreamsGroupedByGameId = groupLiveStreamsById(liveStreams);
   const streamList = document.getElementById("dropdown-content");
-console.log(gameNames);
+  const gameContainerTemplate = document.getElementsByTagName("template")[0];
 
   const sortedGames = Object.keys(liveStreamsGroupedByGameId).sort((a, b) =>
     (gameNames[a].name || "").localeCompare(gameNames[b].name || "")
   );
 
   sortedGames.forEach(key => {
-    const textSpan = createSpanGameTitle(gameNames[key].name);
+    const width = 60;
+    const height = 80;
+
+    const gameContainerClone = gameContainerTemplate.content.cloneNode(true);
+    const gameTitleLink = gameContainerClone.querySelector("#game-title");
+    gameTitleLink.innerText = gameNames[key].name;
+    gameTitleLink.href = `https://www.twitch.tv/directory/game/${gameNames[key].name}`;
+
     const div = document.createElement("div");
     div.setAttribute("class", "game-category");
-    const img = createGameBoxArt(gameNames[key].boxArtUrl)
-    const test = document.createElement("div");
-    test.appendChild(img)
-    test.appendChild(div)
-    test.setAttribute("class", "test")
-    div.appendChild(textSpan);
+
+    const gameBoxLogo = gameContainerClone.querySelector("#box-logo");
+    gameBoxLogo.src = `${gameNames[key].boxArtUrl
+      .replace("{width}", width)
+      .replace("{height}", height)}`;
+
+    const gameBoxLogoLink = gameContainerClone.querySelector("#game-logo-link");
+    gameBoxLogoLink.href = `https://www.twitch.tv/directory/game/${gameNames[key].name}`;
+
     liveStreamsGroupedByGameId[key].forEach(stream => {
-      const streamContainerDiv = createStreamContainerDiv();
-      const link = createStreamLink(stream.user_name);
+      const gameCategoryDiv = gameContainerClone.querySelector(
+        "#game-category"
+      );
+      const streamContainerDiv = document
+        .getElementsByTagName("template")[1]
+        .content.cloneNode(true);
+
+      const streamLink = streamContainerDiv.querySelector("#stream-link");
+      const trimmedUserName = stream.user_name.replace(/\s+/g, "");
+      streamLink.innerHTML += stream.user_name;
+      streamLink.href = `https://www.twitch.tv/${trimmedUserName}`;
+
       const viewerCountSpan = createSpanViewerCount(stream.viewer_count);
-      const toolTipText = createToolTipText(stream.title);
-      link.appendChild(toolTipText);
-      streamContainerDiv.appendChild(link);
-      div.appendChild(streamContainerDiv);
-      div.appendChild(viewerCountSpan);
+      streamContainerDiv.querySelector("#tooltiptext").textContent =
+        stream.title;
+
+      gameCategoryDiv.appendChild(streamContainerDiv);
+      gameCategoryDiv.appendChild(viewerCountSpan);
     });
-    test.appendChild(div)
-    streamList.appendChild(test);
+    streamList.appendChild(gameContainerClone);
   });
-  document.getElementById("dropdown-content").setAttribute("class", "dropdown-content");
+  document
+    .getElementById("dropdown-content")
+    .setAttribute("class", "dropdown-content");
   document.getElementById("spinning-loader").setAttribute("class", "hidden");
 }
 getData();

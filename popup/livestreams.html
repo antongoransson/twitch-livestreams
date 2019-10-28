@@ -5,6 +5,25 @@
     <link type="text/css" rel="stylesheet" href="livestreams.css" />
   </head>
   <body>
+    <template>
+      <div class="game-container">
+        <a id="game-logo-link" href="game_url">
+          <img id="box-logo" class="box-art-logo" />
+        </a>
+        <div class="game-category" id="game-category">
+          <a id="game-title" class="game-title" href="game_url">GameTitle</a>
+        </div>
+      </div>
+    </template>
+
+    <template>
+      <div class="stream-link-container">
+        <a class="stream-link tooltip" id="stream-link" href="stream_url">
+          <span class="tooltiptext" id="tooltiptext">StreamTitle</span>
+        </a>
+      </div>
+    </template>
+
     <div id="dropdown-content">
       <div class="hidden" id="error"></div>
       <div class="lds-hourglass" id="spinning-loader"></div>

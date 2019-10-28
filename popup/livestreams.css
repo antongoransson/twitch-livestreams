@@ -1,18 +1,22 @@
-html,
+html {
+  scrollbar-width: thin;
+  background-color:#252525 ;
+
+}
 body {
-  background-color: black;
-  color: white; 
-  padding-right : 15px
+  color: #E0E0E0; 
+  font-family: Helvetica, sans-serif;
 }
 
 .dropdown-content {
-  background-color: black;
   width: 380px;
 }
 
 .game-title {
   font-weight: bold;
   font-size: 18px;
+  text-decoration: none;
+  color:#E0E0E0;
 }
 
 .game-category {
@@ -22,7 +26,7 @@ body {
   grid-column: 2;
 }
 .stream-link {
-  color: white;
+  color: #E0E0E0;
 }
 
 .stream-view-count {
@@ -41,34 +45,43 @@ body {
   grid-column: 1;
 }
 
-.test {
+.game-container {
   display: grid;
   padding-bottom: 10px;
   padding-top: 10px;
   border-top: 3px solid aqua;
   grid-template-columns: min-content 1fr;
+  margin-right: 10px;
 }
 
 .tooltip {
   position: relative;
   display: inline-block;
+  background-color: #252525;
 }
 
 /* Tooltip text */
 .tooltip .tooltiptext {
   visibility: hidden;
-  background-color: black;
+  background-color:#E0E0E0 ;
+  background-color:#404040 ;
+ 
   width: 200px;
   color: #fff;
+  color: #E0E0E0;
   text-align: center;
   padding: 5px 3px;
   border-radius: 6px;
-  border: 1px solid white;
   position: absolute;
   z-index: 1;
 
-  left: 35px;
+  /* LEFT */
+  left: 75px;
   top: -25px;
+}
+
+.test:last-child  .tooltiptext {
+  top: -50px;
 }
 
 /* Show the tooltip text when you mouse over the tooltip container */
@@ -83,6 +96,7 @@ body {
   width: 32px;
   height: 32px;
 }
+
 .lds-hourglass:after {
   content: " ";
   display: block;
