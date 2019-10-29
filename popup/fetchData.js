@@ -68,14 +68,32 @@ async function doGetRequest(url) {
 }
 
 async function getGameNames(liveStreams) {
-  const gameIds = getUrlParametersAsString(liveStreams, "id", "game_id");
+  let { gamesInfo: savedGamesInfo } = await browser.storage.local.get(
+    "gamesInfo"
+  );
+  savedGamesInfo = JSON.parse(savedGamesInfo);
+  const savedGamesIds = Object.keys(savedGamesInfo);
+  const unknownGames = liveStreams.filter(
+    stream => !savedGamesIds.includes(stream.game_id)
+  );
+  if (unknownGames.length === 0) {
+    return savedGamesInfo;
+  }
+
+  const gameIds = getUrlParametersAsString(unknownGames, "id", "game_id");
   const gamesUrl = `${BASE_URL}games?${gameIds}`;
   const gamesInfo = await doGetRequest(gamesUrl);
 
-  return gamesInfo.data.reduce((acc, curr) => {
+  const groupedGamesInfo = gamesInfo.data.reduce((acc, curr) => {
     acc[curr.id] = { name: curr.name, boxArtUrl: curr.box_art_url };
     return acc;
   }, {});
+
+  browser.storage.local.set({
+    gamesInfo: JSON.stringify({ ...savedGamesInfo, ...groupedGamesInfo })
+  });
+
+  return groupedGamesInfo;
 }
 
 async function getLiveStreams(fromId) {

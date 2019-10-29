@@ -5,6 +5,7 @@
   "name": "TwitchLiveFollowedStreams",
   "version": "1.2",
   "icons": {
+    "32":"icons/twitch_32.png",
     "48": "icons/twitch_48.png"
   },
   "options_ui": {
@@ -12,7 +13,7 @@
   },
   "permissions": ["storage"],
   "browser_action": {
-    "default_icon": "icons/twitch_32.png",
+    "default_icon": "icons/twitch_48.png",
     "default_title": "Livestreams",
     "default_popup": "popup/livestreams.html"
   }
