@@ -1,38 +1,35 @@
 html {
   scrollbar-width: thin;
-  background-color:#252525 ;
-
+  background-color: #252525;
+  overflow-x: hidden;
 }
+
 body {
-  color: #E0E0E0; 
+  color: #e0e0e0;
   font-family: Helvetica, sans-serif;
-}
-
-.dropdown-content {
-  width: 380px;
 }
 
 .game-title {
   font-weight: bold;
   font-size: 18px;
   text-decoration: none;
-  color:#E0E0E0;
+  color: #e0e0e0;
 }
 
-.game-category {
-  display: grid;
-  grid-template-columns: 1fr min-content;
+.game-info {
   margin-left: 10px;
   grid-column: 2;
 }
-.stream-link {
-  color: #E0E0E0;
+
+a.stream-link {
+  color: #e0e0e0;
 }
 
-.stream-view-count {
+span.stream-view-count {
   grid-column: 2;
   text-align: right;
 }
+
 .hidden {
   visibility: hidden;
 }
@@ -45,6 +42,12 @@ body {
   grid-column: 1;
 }
 
+.stream-container {
+  display: grid;
+  grid-template-columns: 1fr min-content;
+  margin-top: 3px;
+}
+
 .game-container {
   display: grid;
   padding-bottom: 10px;
@@ -52,6 +55,11 @@ body {
   border-top: 3px solid aqua;
   grid-template-columns: min-content 1fr;
   margin-right: 10px;
+  width: 380px;
+}
+
+.game-container:last-child {
+  border-bottom: 3px solid aqua;
 }
 
 .tooltip {
@@ -63,12 +71,9 @@ body {
 /* Tooltip text */
 .tooltip .tooltiptext {
   visibility: hidden;
-  background-color:#E0E0E0 ;
-  background-color:#404040 ;
- 
+  background-color: #404040;
   width: 200px;
-  color: #fff;
-  color: #E0E0E0;
+  color: #e0e0e0;
   text-align: center;
   padding: 5px 3px;
   border-radius: 6px;
@@ -78,10 +83,6 @@ body {
   /* LEFT */
   left: 75px;
   top: -25px;
-}
-
-.test:last-child  .tooltiptext {
-  top: -50px;
 }
 
 /* Show the tooltip text when you mouse over the tooltip container */
