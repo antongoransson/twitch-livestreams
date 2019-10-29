@@ -30,7 +30,7 @@ function createStreamContainer(stream) {
   const viewCount = streamContainer.querySelector("#stream-view-count");
 
   const trimmedUserName = stream.user_name.replace(/\s+/g, "");
-  streamLink.innerHTML += stream.user_name;
+  streamLink.childNodes[0].textContent = stream.user_name;
   streamLink.href = `https://www.twitch.tv/${trimmedUserName}`;
 
   streamContainer.querySelector("#tooltiptext").textContent = stream.title;
