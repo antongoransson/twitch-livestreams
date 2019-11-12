@@ -62,24 +62,25 @@ async function doGetRequest(url) {
   const headers = new Headers({
     "Client-ID": "rw3b9oz0ukowvdsvu58g335gqh8q1g"
   });
-  const response = await fetch(url, { headers });
-  const json = await response.json();
-  return json;
+  const response = await fetch(url, { headers }).then(res => res.json());
+  return response;
 }
 
 async function getGameNames(liveStreams) {
   let { gamesInfo: savedGamesInfo } = await browser.storage.local.get(
     "gamesInfo"
   );
-  savedGamesInfo = JSON.parse(savedGamesInfo);
-  const savedGamesIds = Object.keys(savedGamesInfo);
-  const unknownGames = liveStreams.filter(
-    stream => !savedGamesIds.includes(stream.game_id)
-  );
-  if (unknownGames.length === 0) {
-    return savedGamesInfo;
+  let unknownGames = liveStreams;
+  if (savedGamesInfo) {
+    savedGamesInfo = JSON.parse(savedGamesInfo);
+    unknownGames = liveStreams.filter(
+      ({ game_id }) => !savedGamesInfo[game_id]
+    );
+    if (unknownGames.length === 0) {
+      return savedGamesInfo;
+    }
   }
-
+  
   const gameIds = getUrlParametersAsString(unknownGames, "id", "game_id");
   const gamesUrl = `${BASE_URL}games?${gameIds}`;
   const gamesInfo = await doGetRequest(gamesUrl);
@@ -89,11 +90,17 @@ async function getGameNames(liveStreams) {
     return acc;
   }, {});
 
-  browser.storage.local.set({
-    gamesInfo: JSON.stringify({ ...savedGamesInfo, ...groupedGamesInfo })
-  });
-
-  return groupedGamesInfo;
+  const allGamesInfo = {
+    ...(savedGamesInfo || {}),
+    ...groupedGamesInfo,
+    0: {
+      name: "Unknown Game",
+      boxArtUrl:
+        "https://static-cdn.jtvnw.net/ttv-static/404_boxart-{width}x{height}.jpg"
+    }
+  };
+  browser.storage.local.set({ gamesInfo: JSON.stringify(allGamesInfo) });
+  return allGamesInfo;
 }
 
 async function getLiveStreams(fromId) {
