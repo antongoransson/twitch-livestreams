@@ -4,7 +4,7 @@ const BROWSER_ACTION = browser.browserAction;
 
 function getFollowedStreamsUrl(data) {
   const streamIds = getUrlParametersAsString(data, "user_id", "to_id");
-  return `${BASE_URL}streams?${streamIds}`;
+  return `${BASE_URL}streams?${streamIds}&first=100`;
 }
 
 function getUrlParametersAsString(liveStreams, attrName, keyName) {
@@ -65,8 +65,6 @@ async function getLiveStreams(fromId) {
     const followedStreamsUrl = `${BASE_URL}users/follows?from_id=${fromId}&first=100${
       pagination ? "&after=" + pagination.cursor : ""
     }`;
-    followedStreams = await doGetRequest(followedStreamsUrl);
-    pagination = followedStreams.pagination;
     const liveStreamsUrl = getFollowedStreamsUrl(followedStreams.data);
     const liveStreams = await doGetRequest(liveStreamsUrl);
     allLiveStreams = allLiveStreams.concat(liveStreams.data);
@@ -75,8 +73,9 @@ async function getLiveStreams(fromId) {
   return allLiveStreams;
 }
 
-async function getLiveStreamsInfo(fromId) {
-  const liveStreams = await getLiveStreams(fromId);
+async function getLiveStreamsInfo() {
+  await fetchLiveFollowedStreams()
+  const liveStreams = session.liveFollowedStreams ;
   const gameNames = await getGameNames(liveStreams);
   const liveStreamsGroupedByGameId = liveStreams.reduce((acc, curr) => {
     acc[curr.game_id] = [...(acc[curr.game_id] || []), curr];
@@ -103,6 +102,52 @@ async function getUserId() {
   return null;
 }
 
+async function fetchFollowedStreams() {
+  const fromId = await getUserId();
+  if (fromId === null) {
+    return null;
+  }
+  let allFollowedStreams = [];
+  let pagination = "";
+  let followedStreams;
+  do {
+    const followedStreamsUrl = `${BASE_URL}users/follows?from_id=${fromId}&first=100${
+      pagination ? "&after=" + pagination.cursor : ""
+    }`;
+    followedStreams = await doGetRequest(followedStreamsUrl);
+    pagination = followedStreams.pagination;
+    allFollowedStreams = allFollowedStreams.concat(followedStreams.data);
+  } while (followedStreams.total > 100 && followedStreams.data.length === 100);
+  session.followedStreams = allFollowedStreams;
+}
+
+async function fetchLiveFollowedStreams() {
+  const MAX_SIZE = 100;
+  let currStartIndex = 0;
+  let currEndIndex = MAX_SIZE;
+  let followedStreams = session.followedStreams.slice(
+    currStartIndex,
+    currEndIndex
+  );
+  let totalFollowedStreams = followedStreams.length;
+  let allLiveStreams = [];
+  let liveFollowedStreams;
+
+  while (totalFollowedStreams > 0) {
+    const followedStreamsUrl = getFollowedStreamsUrl(followedStreams);
+    liveFollowedStreams = await doGetRequest(followedStreamsUrl);
+    allLiveStreams = allLiveStreams.concat(liveFollowedStreams.data);
+    totalFollowedStreams -= currEndIndex - currStartIndex;
+    currStartIndex = currEndIndex;
+    currEndIndex = Math.min(totalFollowedStreams, MAX_SIZE);
+    followedStreams = session.followedStreams.slice(
+      currStartIndex,
+      currEndIndex
+    );
+  }
+  session.liveFollowedStreams = allLiveStreams;
+}
+
 async function fetchLiveStreams() {
   const fromId = await getUserId();
   if (fromId === null) {
@@ -111,16 +156,25 @@ async function fetchLiveStreams() {
   const { liveStreams, gameNames } = await getLiveStreamsInfo(fromId);
 
   BROWSER_ACTION.setBadgeText({ text: `${Object.keys(liveStreams).length}` });
-  BROWSER_ACTION.setBadgeBackgroundColor({ color: "Darkgrey" });
+  BROWSER_ACTION.setBadgeBackgroundColor({ color: "#252525" });
   BROWSER_ACTION.setBadgeTextColor({ color: "white" });
-  session = { liveStreams, gameNames };
+  session.liveFollowedStreams = liveStreams;
+  session.gameNames = gameNames;
 }
 
-let session = {};
+let session = {
+  followedStreams: [],
+  gameNames: [],
+  liveFollowedStreams: []
+};
 
 function getSession() {
   return session;
 }
 
-fetchLiveStreams();
-setInterval(fetchLiveStreams, 60 * 2 * 1000);
+(async () => {
+  await fetchFollowedStreams();
+  fetchLiveStreams();
+  setInterval(fetchFollowedStreams, 60 * 60 * 1000);
+  setInterval(fetchLiveStreams, 60 * 2 * 1000);
+})();
