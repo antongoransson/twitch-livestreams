@@ -50,13 +50,10 @@ async function main() {
 
   const BACKGROUND_PAGE = await browser.runtime.getBackgroundPage();
   const result = BACKGROUND_PAGE.getSession();
-  if (result.liveFollowedStreams === [] && result.followedStreams === []) {
+  if (result.userId === null) {
     showErrorMessage();
-    BACKGROUND_PAGE.fetchLiveStreams();
     return;
   }
-console.log(result);
-
   const { liveFollowedStreams: liveStreams, gameNames } = result;
   const sortedGames = Object.keys(liveStreams).sort((a, b) =>
     (gameNames[a].name || "").localeCompare(gameNames[b].name || "")

@@ -1,27 +1,7 @@
-const BASE_URL = "https://api.twitch.tv/helix/";
 const LOCAL_STORAGE = browser.storage.local;
 const BROWSER_ACTION = browser.browserAction;
 
-function getFollowedStreamsUrl(data) {
-  const streamIds = getUrlParametersAsString(data, "user_id", "to_id");
-  return `${BASE_URL}streams?${streamIds}&first=100`;
-}
-
-function getUrlParametersAsString(liveStreams, attrName, keyName) {
-  return liveStreams
-    .map((stream, i) => `${i > 0 ? "&" : ""}${attrName}=${stream[keyName]}`)
-    .join("");
-}
-
-async function doGetRequest(url) {
-  const headers = new Headers({
-    "Client-ID": "rw3b9oz0ukowvdsvu58g335gqh8q1g"
-  });
-  const response = await fetch(url, { headers }).then(res => res.json());
-  return response;
-}
-
-async function getGameNames(liveStreams) {
+async function getGames(liveStreams) {
   let { gamesInfo: savedGamesInfo } = await LOCAL_STORAGE.get("gamesInfo");
   let unknownGames = liveStreams;
   if (savedGamesInfo) {
@@ -33,16 +13,7 @@ async function getGameNames(liveStreams) {
       return savedGamesInfo;
     }
   }
-
-  const gameIds = getUrlParametersAsString(unknownGames, "id", "game_id");
-  const gamesUrl = `${BASE_URL}games?${gameIds}`;
-  const gamesInfo = await doGetRequest(gamesUrl);
-
-  const groupedGamesInfo = gamesInfo.data.reduce((acc, curr) => {
-    acc[curr.id] = { name: curr.name, boxArtUrl: curr.box_art_url };
-    return acc;
-  }, {});
-
+  const groupedGamesInfo = await TWITCH_API.getGames(unknownGames);
   const unknownGame = {
     name: "Unknown Game",
     boxArtUrl:
@@ -57,26 +28,9 @@ async function getGameNames(liveStreams) {
   return allGamesInfo;
 }
 
-async function getLiveStreams(fromId) {
-  let allLiveStreams = [];
-  let pagination = "";
-  let followedStreams;
-  do {
-    const followedStreamsUrl = `${BASE_URL}users/follows?from_id=${fromId}&first=100${
-      pagination ? "&after=" + pagination.cursor : ""
-    }`;
-    const liveStreamsUrl = getFollowedStreamsUrl(followedStreams.data);
-    const liveStreams = await doGetRequest(liveStreamsUrl);
-    allLiveStreams = allLiveStreams.concat(liveStreams.data);
-  } while (followedStreams.total > 100 && followedStreams.data.length === 100);
-  allLiveStreams.sort((a, b) => b.viewer_count - a.viewer_count);
-  return allLiveStreams;
-}
-
 async function getLiveStreamsInfo() {
-  await fetchLiveFollowedStreams()
-  const liveStreams = session.liveFollowedStreams ;
-  const gameNames = await getGameNames(liveStreams);
+  const liveStreams = await getLiveFollowedStreams();
+  const gameNames = await getGames(liveStreams);
   const liveStreamsGroupedByGameId = liveStreams.reduce((acc, curr) => {
     acc[curr.game_id] = [...(acc[curr.game_id] || []), curr];
     return acc;
@@ -90,65 +44,35 @@ async function getUserId() {
     return null;
   }
   if (twitchUserId !== null) {
+    session.userId = twitchUserId;
     return twitchUserId;
   }
-  const getUserInfoUrl = `${BASE_URL}users?login=${twitchUsername}`;
-  const userInfo = await doGetRequest(getUserInfoUrl);
-  if (userInfo.data && userInfo.data.length > 0) {
-    const userId = userInfo.data[0].id;
+  const userId = await TWITCH_API.getUserId(twitchUsername);
+  if (userId !== null) {
     LOCAL_STORAGE.set({ twitchUserId: userId });
-    return userId;
+    session.userId = userId;
   }
-  return null;
+  return userId;
 }
 
-async function fetchFollowedStreams() {
+async function getFollowedStreams() {
   const fromId = await getUserId();
   if (fromId === null) {
     return null;
   }
-  let allFollowedStreams = [];
-  let pagination = "";
-  let followedStreams;
-  do {
-    const followedStreamsUrl = `${BASE_URL}users/follows?from_id=${fromId}&first=100${
-      pagination ? "&after=" + pagination.cursor : ""
-    }`;
-    followedStreams = await doGetRequest(followedStreamsUrl);
-    pagination = followedStreams.pagination;
-    allFollowedStreams = allFollowedStreams.concat(followedStreams.data);
-  } while (followedStreams.total > 100 && followedStreams.data.length === 100);
+  const allFollowedStreams = await TWITCH_API.getFollowedStreams(fromId);
   session.followedStreams = allFollowedStreams;
+  return allFollowedStreams;
 }
 
-async function fetchLiveFollowedStreams() {
-  const MAX_SIZE = 100;
-  let currStartIndex = 0;
-  let currEndIndex = MAX_SIZE;
-  let followedStreams = session.followedStreams.slice(
-    currStartIndex,
-    currEndIndex
-  );
-  let totalFollowedStreams = followedStreams.length;
-  let allLiveStreams = [];
-  let liveFollowedStreams;
-
-  while (totalFollowedStreams > 0) {
-    const followedStreamsUrl = getFollowedStreamsUrl(followedStreams);
-    liveFollowedStreams = await doGetRequest(followedStreamsUrl);
-    allLiveStreams = allLiveStreams.concat(liveFollowedStreams.data);
-    totalFollowedStreams -= currEndIndex - currStartIndex;
-    currStartIndex = currEndIndex;
-    currEndIndex = Math.min(totalFollowedStreams, MAX_SIZE);
-    followedStreams = session.followedStreams.slice(
-      currStartIndex,
-      currEndIndex
-    );
-  }
-  session.liveFollowedStreams = allLiveStreams;
+async function getLiveFollowedStreams() {
+  const allFollowedStreams = session.followedStreams
+  const liveFollowedStreams = await TWITCH_API.getLiveFollowedStreams(allFollowedStreams)
+  session.liveFollowedStreams = liveFollowedStreams;
+  return liveFollowedStreams;
 }
 
-async function fetchLiveStreams() {
+async function getLiveStreams() {
   const fromId = await getUserId();
   if (fromId === null) {
     return null;
@@ -165,16 +89,18 @@ async function fetchLiveStreams() {
 let session = {
   followedStreams: [],
   gameNames: [],
-  liveFollowedStreams: []
+  liveFollowedStreams: [],
+  userId: null
 };
 
 function getSession() {
   return session;
 }
 
-(async () => {
-  await fetchFollowedStreams();
-  fetchLiveStreams();
-  setInterval(fetchFollowedStreams, 60 * 60 * 1000);
-  setInterval(fetchLiveStreams, 60 * 2 * 1000);
+( () => {
+  getFollowedStreams().then(() => {
+    getLiveStreams();
+    setInterval(getFollowedStreams, 60 * 60 * 1000);
+    setInterval(getLiveStreams, 60 * 2 * 1000);
+  })
 })();
