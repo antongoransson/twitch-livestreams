@@ -35,7 +35,11 @@ async function getLiveStreamsInfo() {
     acc[curr.game_id] = [...(acc[curr.game_id] || []), curr];
     return acc;
   }, {});
-  return { liveStreams: liveStreamsGroupedByGameId, gameNames };
+  return {
+    liveStreams: liveStreamsGroupedByGameId,
+    gameNames,
+    nbrLive: liveStreams.length
+  };
 }
 
 async function getUserId() {
@@ -43,6 +47,7 @@ async function getUserId() {
   if (twitchUsername === undefined) {
     return null;
   }
+  session.userName = twitchUsername;
   if (twitchUserId !== null) {
     session.userId = twitchUserId;
     return twitchUserId;
@@ -66,8 +71,10 @@ async function getFollowedStreams() {
 }
 
 async function getLiveFollowedStreams() {
-  const allFollowedStreams = session.followedStreams
-  const liveFollowedStreams = await TWITCH_API.getLiveFollowedStreams(allFollowedStreams)
+  const allFollowedStreams = session.followedStreams;
+  const liveFollowedStreams = await TWITCH_API.getLiveFollowedStreams(
+    allFollowedStreams
+  );
   session.liveFollowedStreams = liveFollowedStreams;
   return liveFollowedStreams;
 }
@@ -77,30 +84,32 @@ async function getLiveStreams() {
   if (fromId === null) {
     return null;
   }
-  const { liveStreams, gameNames } = await getLiveStreamsInfo(fromId);
+  const { liveStreams, gameNames, nbrLive } = await getLiveStreamsInfo(fromId);
 
-  BROWSER_ACTION.setBadgeText({ text: `${Object.keys(liveStreams).length}` });
+  BROWSER_ACTION.setBadgeText({ text: `${nbrLive}` });
   BROWSER_ACTION.setBadgeBackgroundColor({ color: "#252525" });
   BROWSER_ACTION.setBadgeTextColor({ color: "white" });
   session.liveFollowedStreams = liveStreams;
   session.gameNames = gameNames;
+  return session;
 }
 
 let session = {
   followedStreams: [],
   gameNames: [],
   liveFollowedStreams: [],
-  userId: null
+  userId: null,
+  userName: ""
 };
 
 function getSession() {
   return session;
 }
 
-( () => {
+(() => {
   getFollowedStreams().then(() => {
     getLiveStreams();
     setInterval(getFollowedStreams, 60 * 60 * 1000);
     setInterval(getLiveStreams, 60 * 2 * 1000);
-  })
+  });
 })();

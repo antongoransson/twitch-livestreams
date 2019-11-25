@@ -45,15 +45,27 @@ function showErrorMessage() {
   document.getElementById("spinning-loader").setAttribute("class", "hidden");
 }
 
-async function main() {
-  document.getElementById("error").setAttribute("class", "hidden");
-
+async function getSession() {
   const BACKGROUND_PAGE = await browser.runtime.getBackgroundPage();
   const result = BACKGROUND_PAGE.getSession();
-  if (result.userId === null) {
+  if (result.userName === "") {
     showErrorMessage();
     return;
   }
+  if (result.userId === null) {
+    const newResult = await BACKGROUND_PAGE.getLiveStreams();
+    if (newResult.userId === "") {
+      showErrorMessage();
+      return;
+    }
+    return newResult;
+  }
+  return result;
+}
+
+async function main() {
+  document.getElementById("error").setAttribute("class", "hidden");
+  const result = await getSession()
   const { liveFollowedStreams: liveStreams, gameNames } = result;
   const sortedGames = Object.keys(liveStreams).sort((a, b) =>
     (gameNames[a].name || "").localeCompare(gameNames[b].name || "")
