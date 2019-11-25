@@ -1,5 +1,7 @@
-const BASE_URL = "https://api.twitch.tv/helix/";
 
+/* exported TWITCH_API */
+
+const BASE_URL = "https://api.twitch.tv/helix/";
 async function doGetRequest(url) {
   const headers = new Headers({
     "Client-ID": "rw3b9oz0ukowvdsvu58g335gqh8q1g"
