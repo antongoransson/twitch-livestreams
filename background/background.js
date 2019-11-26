@@ -94,6 +94,12 @@ async function getLiveStreams() {
   return session;
 }
 
+function getAllData() {
+  return getFollowedStreams().then(() => {
+    return getLiveStreams();
+  })
+}
+
 let session = {
   followedStreams: [],
   gameNames: [],

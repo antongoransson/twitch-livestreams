@@ -9,14 +9,14 @@ function createGameContainer(gameName, boxArtUrl) {
 
   const gameUrl = `https://www.twitch.tv/directory/game/${gameName}`;
 
-  gameTitleLink.innerText = gameName;
-  gameTitleLink.href = gameUrl;
+  gameTitleLink.textContent = gameName;
+  gameTitleLink.setAttribute("href", gameUrl);
 
-  gameBoxLogo.src = boxArtUrl
-    .replace("{width}", width)
-    .replace("{height}", height);
-
-  gameContainerClone.querySelector("#game-logo-link").href = gameUrl;
+  gameBoxLogo.setAttribute(
+    "src",
+    boxArtUrl.replace("{width}", width).replace("{height}", height)
+  );
+  gameContainerClone.querySelector("#game-logo-link").setAttribute("href", gameUrl);
   return gameContainerClone;
 }
 
@@ -48,24 +48,23 @@ function showErrorMessage() {
 async function getSession() {
   const BACKGROUND_PAGE = await browser.runtime.getBackgroundPage();
   const result = BACKGROUND_PAGE.getSession();
-  if (result.userName === "") {
-    showErrorMessage();
-    return;
-  }
-  if (result.userId === null) {
-    const newResult = await BACKGROUND_PAGE.getLiveStreams();
-    if (newResult.userId === "") {
+  if (result.userName === "" || result.userId === null) {
+    const updateResult = await BACKGROUND_PAGE.getAllData();
+    if (updateResult === null || updateResult.userId === "") {
       showErrorMessage();
       return;
     }
-    return newResult;
+    return updateResult;
   }
   return result;
 }
 
 async function main() {
   document.getElementById("error").setAttribute("class", "hidden");
-  const result = await getSession()
+  const result = await getSession();
+  if (!result) {
+    return;
+  }
   const { liveFollowedStreams: liveStreams, gameNames } = result;
   const sortedGames = Object.keys(liveStreams).sort((a, b) =>
     (gameNames[a].name || "").localeCompare(gameNames[b].name || "")
