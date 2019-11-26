@@ -4,6 +4,7 @@ function saveOptions(e) {
     twitchUsername: document.querySelector("#twitchUsername").value,
     twitchUserId: null
   });
+  browser.runtime.getBackgroundPage().then(page => page.getAllData());
 }
 
 function restoreOptions() {

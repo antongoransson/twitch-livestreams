@@ -1,17 +1,19 @@
+/* global TWITCH_API */
 const LOCAL_STORAGE = browser.storage.local;
 const BROWSER_ACTION = browser.browserAction;
 
+BROWSER_ACTION.setBadgeText({ text: `${0}` });
+BROWSER_ACTION.setBadgeBackgroundColor({ color: "#252525" });
+BROWSER_ACTION.setBadgeTextColor({ color: "white" });
+
 async function getGames(liveStreams) {
   let { gamesInfo: savedGamesInfo } = await LOCAL_STORAGE.get("gamesInfo");
-  let unknownGames = liveStreams;
-  if (savedGamesInfo) {
-    savedGamesInfo = JSON.parse(savedGamesInfo);
-    unknownGames = liveStreams.filter(
-      ({ game_id }) => !savedGamesInfo[game_id]
-    );
-    if (unknownGames.length === 0) {
-      return savedGamesInfo;
-    }
+  savedGamesInfo = JSON.parse(savedGamesInfo || "{}");
+  const unknownGames = liveStreams.filter(
+    ({ game_id }) => !savedGamesInfo[game_id]
+  );
+  if (unknownGames.length === 0) {
+    return savedGamesInfo;
   }
   const groupedGamesInfo = await TWITCH_API.getGames(unknownGames);
   const unknownGame = {
@@ -20,7 +22,7 @@ async function getGames(liveStreams) {
       "https://static-cdn.jtvnw.net/ttv-static/404_boxart-{width}x{height}.jpg"
   };
   const allGamesInfo = {
-    ...(savedGamesInfo || {}),
+    ...savedGamesInfo,
     ...groupedGamesInfo,
     0: unknownGame
   };
@@ -63,6 +65,8 @@ async function getUserId() {
 async function getFollowedStreams() {
   const fromId = await getUserId();
   if (fromId === null) {
+    session = { ...initialState };
+    BROWSER_ACTION.setBadgeText({ text: `${0}` });
     return null;
   }
   const allFollowedStreams = await TWITCH_API.getFollowedStreams(fromId);
@@ -85,22 +89,17 @@ async function getLiveStreams() {
     return null;
   }
   const { liveStreams, gameNames, nbrLive } = await getLiveStreamsInfo(fromId);
-
   BROWSER_ACTION.setBadgeText({ text: `${nbrLive}` });
-  BROWSER_ACTION.setBadgeBackgroundColor({ color: "#252525" });
-  BROWSER_ACTION.setBadgeTextColor({ color: "white" });
   session.liveFollowedStreams = liveStreams;
   session.gameNames = gameNames;
   return session;
 }
 
 function getAllData() {
-  return getFollowedStreams().then(() => {
-    return getLiveStreams();
-  })
+  return getFollowedStreams().then(() => getLiveStreams());
 }
 
-let session = {
+const initialState = {
   followedStreams: [],
   gameNames: [],
   liveFollowedStreams: [],
@@ -108,13 +107,16 @@ let session = {
   userName: ""
 };
 
+let session = {
+  ...initialState
+};
+
 function getSession() {
   return session;
 }
 
 (() => {
-  getFollowedStreams().then(() => {
-    getLiveStreams();
+  getAllData().then(() => {
     setInterval(getFollowedStreams, 60 * 60 * 1000);
     setInterval(getLiveStreams, 60 * 2 * 1000);
   });

@@ -1,12 +1,13 @@
 {
-    "name": "TwitchLiveFollowedStreams",
-    "version": "1.0.0",
-    "description": "",
-    "devDependencies": {
-      "eslint": "^6.7.1"
-    },
-    "scripts": {
-      "lint": "eslint ."
-    },
-    "author": ""
-  }
+  "name": "twitch-livestreams",
+  "version": "1.0.0",
+  "description": "",
+  "devDependencies": {
+    "babel-eslint": "^10.0.3",
+    "eslint": "^6.7.1"
+  },
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "author": ""
+}

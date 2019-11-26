@@ -1,14 +1,17 @@
 {
-    "env": {
-        "browser": true,
-        "es6": true,
-        "webextensions": true
-    },
-    "parserOptions": {
-        "ecmaVersion": 8,
-        "experimentalObjectRestSpread": true
-      },
-    "extends": [
-      "eslint:recommended"
-    ]
+  "env": {
+    "browser": true,
+    "es6": true,
+    "webextensions": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "experimentalObjectRestSpread": true,
+
+    "ecmaFeatures": {
+      "experimentalObjectRestSpread": true,
+      "jsx": true
+    }
+  },
+  "extends": ["eslint:recommended"]
 }
