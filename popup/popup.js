@@ -1,7 +1,9 @@
-function createGameContainer(gameName, boxArtUrl) {
-  const width = 60;
-  const height = 80;
+const DEFAULT_ERROR_MESSAGE =
+  "Make sure you have put the correct username in the extension settings";
+const BOX_ART_WIDTH = 60;
+const BOX_ART_HEIGHT = 80;
 
+function createGameContainer(gameName, boxArtUrl) {
   const gameContainerTemplate = document.getElementsByTagName("template")[0];
   const gameContainerClone = gameContainerTemplate.content.cloneNode(true);
   const gameTitleLink = gameContainerClone.querySelector("#game-title");
@@ -11,12 +13,13 @@ function createGameContainer(gameName, boxArtUrl) {
 
   gameTitleLink.textContent = gameName;
   gameTitleLink.setAttribute("href", gameUrl);
-
-  gameBoxLogo.setAttribute(
-    "src",
-    boxArtUrl.replace("{width}", width).replace("{height}", height)
-  );
-  gameContainerClone.querySelector("#game-logo-link").setAttribute("href", gameUrl);
+  boxArtUrl = boxArtUrl
+    .replace("{width}", BOX_ART_WIDTH)
+    .replace("{height}", BOX_ART_HEIGHT);
+  gameBoxLogo.setAttribute("src", boxArtUrl);
+  gameContainerClone
+    .querySelector("#game-logo-link")
+    .setAttribute("href", gameUrl);
   return gameContainerClone;
 }
 
@@ -29,17 +32,16 @@ function createStreamContainer(stream) {
 
   const trimmedUserName = stream.user_name.replace(/\s+/g, "");
   streamLink.childNodes[0].textContent = stream.user_name;
-  streamLink.href = `https://www.twitch.tv/${trimmedUserName}`;
+  streamLink.setAttribute("href", `https://www.twitch.tv/${trimmedUserName}`);
 
   streamContainer.querySelector("#tooltiptext").textContent = stream.title;
   viewCount.textContent = stream.viewer_count;
   return streamContainer;
 }
 
-function showErrorMessage() {
+function showErrorMessage(message) {
   document.getElementById("error").setAttribute("class", "");
-  const errorText =
-    "Make sure you have put the correct username in the extension settings";
+  const errorText = message || DEFAULT_ERROR_MESSAGE;
   const errorTextNode = document.createTextNode(errorText);
   document.getElementById("error").appendChild(errorTextNode);
   document.getElementById("spinning-loader").setAttribute("class", "hidden");
@@ -49,12 +51,12 @@ async function getSession() {
   const BACKGROUND_PAGE = await browser.runtime.getBackgroundPage();
   const result = BACKGROUND_PAGE.getSession();
   if (result.userName === "" || result.userId === null) {
-    const updateResult = await BACKGROUND_PAGE.getAllData();
-    if (updateResult === null || updateResult.userId === "") {
+    const updatedResult = await BACKGROUND_PAGE.getAllData();
+    if (updatedResult === null || updatedResult.userId === "") {
       showErrorMessage();
       return;
     }
-    return updateResult;
+    return updatedResult;
   }
   return result;
 }
@@ -65,9 +67,13 @@ async function main() {
   if (!result) {
     return;
   }
-  const { liveFollowedStreams: liveStreams, gameNames } = result;
-  const sortedGames = Object.keys(liveStreams).sort((a, b) =>
-    (gameNames[a].name || "").localeCompare(gameNames[b].name || "")
+  const { liveFollowedStreams, gameNames } = result;
+  if (Object.keys(liveFollowedStreams).length === 0) {
+    showErrorMessage("No followed streams are live");
+    return;
+  }
+  const sortedGames = Object.keys(liveFollowedStreams).sort((a, b) =>
+    gameNames[a].name.localeCompare(gameNames[b].name)
   );
 
   const streamList = document.getElementById("dropdown-content");
@@ -76,7 +82,7 @@ async function main() {
     const gameContainerClone = createGameContainer(gameName, boxArtUrl);
     const gameCategory = gameContainerClone.querySelector("#game-info");
 
-    liveStreams[key].forEach(stream => {
+    liveFollowedStreams[key].forEach(stream => {
       gameCategory.appendChild(createStreamContainer(stream));
     });
 

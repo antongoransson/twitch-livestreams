@@ -1,4 +1,5 @@
 /* global TWITCH_API */
+/* exported getSession */
 const LOCAL_STORAGE = browser.storage.local;
 const BROWSER_ACTION = browser.browserAction;
 
@@ -79,7 +80,6 @@ async function getLiveFollowedStreams() {
   const liveFollowedStreams = await TWITCH_API.getLiveFollowedStreams(
     allFollowedStreams
   );
-  session.liveFollowedStreams = liveFollowedStreams;
   return liveFollowedStreams;
 }
 
