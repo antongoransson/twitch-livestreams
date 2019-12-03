@@ -11,7 +11,11 @@
     "page": "options/options.html"
   },
   "background": {
-    "scripts": ["background/twitchApi.js", "background/background.js"]
+    "scripts": [
+      "background/.env",
+      "background/twitchApi.js",
+      "background/background.js"
+    ]
   },
   "permissions": ["storage"],
   "browser_action": {

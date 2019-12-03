@@ -1,10 +1,10 @@
-
 /* exported TWITCH_API */
+/* global CLIENT_ID */
 
 const BASE_URL = "https://api.twitch.tv/helix/";
 async function doGetRequest(url) {
   const headers = new Headers({
-    "Client-ID": "rw3b9oz0ukowvdsvu58g335gqh8q1g"
+    "Client-ID": CLIENT_ID
   });
   const res = await fetch(url, { headers }).then(res => res.json());
   return res;
@@ -44,7 +44,7 @@ const TWITCH_API = {
       }`;
       followedStreams = await doGetRequest(followedStreamsUrl);
       pagination = followedStreams.pagination;
-      allFollowedStreams = allFollowedStreams.concat(followedStreams.data);
+      allFollowedStreams.push(...followedStreams.data);
     } while (
       followedStreams.total > 100 &&
       followedStreams.data.length === 100
@@ -54,22 +54,19 @@ const TWITCH_API = {
 
   getLiveFollowedStreams: async function(allFollowedStreams) {
     const MAX_SIZE = 100;
-    let currStartIndex = 0;
-    let currEndIndex = MAX_SIZE;
-    let followedStreams = allFollowedStreams.slice(
-      currStartIndex,
-      currEndIndex
-    );
+    let start = 0;
+    let end = MAX_SIZE;
+    let followedStreams = allFollowedStreams.slice(start, end);
     let totalFollowedStreams = followedStreams.length;
     let allLiveFollowedStreams = [];
     while (totalFollowedStreams > 0) {
       const followedStreamsUrl = getFollowedStreamsUrl(followedStreams);
       const liveFollowedStreams = await doGetRequest(followedStreamsUrl);
-      allLiveFollowedStreams.push(... liveFollowedStreams.data)
-      totalFollowedStreams -= currEndIndex - currStartIndex;
-      currStartIndex = currEndIndex;
-      currEndIndex = Math.min(totalFollowedStreams, MAX_SIZE);
-      followedStreams = allFollowedStreams.slice(currStartIndex, currEndIndex);
+      allLiveFollowedStreams.push(...liveFollowedStreams.data);
+      totalFollowedStreams -= end - start;
+      start = end;
+      end = Math.min(totalFollowedStreams, MAX_SIZE);
+      followedStreams = allFollowedStreams.slice(start, end);
     }
     return allLiveFollowedStreams;
   },
