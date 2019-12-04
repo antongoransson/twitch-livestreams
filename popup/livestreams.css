@@ -31,7 +31,7 @@ span.stream-view-count {
 }
 
 .hidden {
-  visibility: hidden;
+  display: none;
 }
 
 .stream-link-container {
@@ -55,11 +55,17 @@ span.stream-view-count {
   border-top: 3px solid aqua;
   grid-template-columns: min-content 1fr;
   margin-right: 10px;
-  width: 380px;
+  width: 390px;
 }
 
 .game-container:last-child {
   border-bottom: 3px solid aqua;
+}
+
+.refresh-button {
+  cursor: pointer;
+  float: right;
+  padding-bottom: 10px;
 }
 
 .tooltip {
