@@ -2,7 +2,7 @@
   "description": "Adds a popup to the toolbar. After setting your twitch username in the settings of the extension the popup will show all the streams you follow that are live right now. It is grouped by game and each stream is linked to.",
   "manifest_version": 2,
   "name": "TwitchLiveFollowedStreams",
-  "version": "1.3",
+  "version": "1.4",
   "icons": {
     "32": "icons/twitch_32.png",
     "48": "icons/twitch_48.png"
@@ -12,7 +12,7 @@
   },
   "background": {
     "scripts": [
-      "background/.env",
+      "background/env.js",
       "background/twitchApi.js",
       "background/background.js"
     ]
