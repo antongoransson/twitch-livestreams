@@ -35,7 +35,7 @@ async function getLiveStreamsInfo() {
   const liveStreams = await getLiveFollowedStreams();
   const gameNames = await getGames(liveStreams);
   const liveStreamsGroupedByGameId = liveStreams.reduce((acc, curr) => {
-    acc[curr.game_id] = [...(acc[curr.game_id] || []), curr];
+    acc[curr.game_id || 0] = [...(acc[curr.game_id] || []), curr];
     return acc;
   }, {});
   return {

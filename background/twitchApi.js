@@ -28,7 +28,7 @@ const TWITCH_API = {
     const gamesInfo = await doGetRequest(gamesUrl);
 
     const groupedGamesById = gamesInfo.data.reduce((acc, curr) => {
-      acc[curr.id] = { name: curr.name, boxArtUrl: curr.box_art_url };
+      acc[curr.id || 0] = { name: curr.name, boxArtUrl: curr.box_art_url };
       return acc;
     }, {});
     return groupedGamesById;
@@ -57,7 +57,7 @@ const TWITCH_API = {
     let start = 0;
     let end = MAX_SIZE;
     let followedStreams = allFollowedStreams.slice(start, end);
-    let totalFollowedStreams = followedStreams.length;
+    let totalFollowedStreams = allFollowedStreams.length;
     let allLiveFollowedStreams = [];
     while (totalFollowedStreams > 0) {
       const followedStreamsUrl = getFollowedStreamsUrl(followedStreams);
@@ -65,7 +65,7 @@ const TWITCH_API = {
       allLiveFollowedStreams.push(...liveFollowedStreams.data);
       totalFollowedStreams -= end - start;
       start = end;
-      end = Math.min(totalFollowedStreams, MAX_SIZE);
+      end = start + Math.min(totalFollowedStreams, MAX_SIZE);
       followedStreams = allFollowedStreams.slice(start, end);
     }
     return allLiveFollowedStreams;
