@@ -68,6 +68,7 @@ const TWITCH_API = {
       end = start + Math.min(totalFollowedStreams, MAX_SIZE);
       followedStreams = allFollowedStreams.slice(start, end);
     }
+    allLiveFollowedStreams.sort((a, b) => b.viewer_count - a.viewer_count)
     return allLiveFollowedStreams;
   },
 
