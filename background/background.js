@@ -95,7 +95,14 @@ async function getLiveStreams() {
   return session;
 }
 
+async function getLocalSettings() {
+  const { showGameBoxArt, showStreamThumbnails } = await LOCAL_STORAGE.get();
+  session.showGameBoxArt = showGameBoxArt;
+  session.showStreamThumbnails = showStreamThumbnails;
+}
+
 function getAllData() {
+  getLocalSettings();
   return getFollowedStreams().then(() => getLiveStreams());
 }
 

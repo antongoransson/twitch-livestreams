@@ -3,10 +3,14 @@
   "version": "1.0.0",
   "description": "",
   "devDependencies": {
-    "eslint": "^6.7.1"
+    "eslint": "^6.8.0"
   },
   "scripts": {
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "firefox": "web-ext run"
   },
-  "author": ""
+  "author": "",
+  "dependencies": {
+    "web-ext": "^4.1.0"
+  }
 }

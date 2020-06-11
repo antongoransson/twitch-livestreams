@@ -68,6 +68,14 @@ span.stream-view-count {
   padding-bottom: 10px;
 }
 
+.dot {
+  height: 14px;
+  width: 14px;
+  background-color: red;
+  border-radius: 50%;
+  display: inline-block;
+}
+
 .tooltip {
   position: relative;
   display: inline-block;
