@@ -33,7 +33,7 @@ function getUrlParametersAsString(liveStreams, attrName, keyName) {
 const TWITCH_API = {
   authorize: async function () {
     const redirectUrl = browser.identity.getRedirectURL()
-    const url = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUrl}&response_type=token&scope=user:read:email&force_verify=true`
+    const url = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUrl}&response_type=token&force_verify=true`
     try {
       const res = await browser.identity.launchWebAuthFlow({ url, interactive: true })
       ACCESS_TOKEN = res.split("access_token=")[1].split("&")[0]
