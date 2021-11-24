@@ -5,7 +5,20 @@ const BROWSER_ACTION = browser.browserAction;
 
 BROWSER_ACTION.setBadgeText({ text: `${0}` });
 BROWSER_ACTION.setBadgeBackgroundColor({ color: "#252525" });
-BROWSER_ACTION.setBadgeTextColor({ color: "white" });
+
+let isAuthenticated = false;
+
+async function authorize() {
+  const { ACCESS_TOKEN } = await LOCAL_STORAGE.get("ACCESS_TOKEN");
+  if (ACCESS_TOKEN === undefined) {
+    const successfulAuthentication = await TWITCH_API.authorize();
+    isAuthenticated = successfulAuthentication;
+  } else {
+    TWITCH_API.setAccessToken(ACCESS_TOKEN)
+    isAuthenticated = true;
+  }
+  return isAuthenticated;
+}
 
 async function getGames(liveStreams) {
   let { gamesInfo: savedGamesInfo } = await LOCAL_STORAGE.get("gamesInfo");
@@ -46,26 +59,22 @@ async function getLiveStreamsInfo() {
 }
 
 async function getUserId() {
-  const { twitchUsername, twitchUserId } = await LOCAL_STORAGE.get();
-  if (twitchUsername === undefined) {
-    return null;
+  let twitchUserId = session.userId;
+  if (!twitchUserId) {
+    const { localTwitchUserId } = await LOCAL_STORAGE.get("twitchUserId");
+    twitchUserId = localTwitchUserId;
   }
-  session.userName = twitchUsername;
-  if (twitchUserId !== null) {
-    session.userId = twitchUserId;
-    return twitchUserId;
+  if (!twitchUserId) {
+    twitchUserId = await TWITCH_API.getUserId();
   }
-  const userId = await TWITCH_API.getUserId(twitchUsername);
-  if (userId !== null) {
-    LOCAL_STORAGE.set({ twitchUserId: userId });
-    session.userId = userId;
-  }
-  return userId;
+  session.userId = twitchUserId;
+  LOCAL_STORAGE.set({ twitchUserId })
+  return twitchUserId;
 }
 
 async function getFollowedStreams() {
   const fromId = await getUserId();
-  if (fromId === null) {
+  if (!fromId) {
     session = { ...initialState };
     BROWSER_ACTION.setBadgeText({ text: `${0}` });
     return null;
@@ -81,11 +90,12 @@ async function getLiveFollowedStreams() {
     allFollowedStreams
   );
   return liveFollowedStreams;
+
 }
 
 async function getLiveStreams() {
   const fromId = await getUserId();
-  if (fromId === null) {
+  if (!fromId) {
     return null;
   }
   const { liveStreams, gameNames, nbrLive } = await getLiveStreamsInfo(fromId);
@@ -96,12 +106,17 @@ async function getLiveStreams() {
 }
 
 async function getLocalSettings() {
-  const { showGameBoxArt, showStreamThumbnails } = await LOCAL_STORAGE.get();
+  const { showGameBoxArt = true, showStreamThumbnails } = await LOCAL_STORAGE.get();
   session.showGameBoxArt = showGameBoxArt;
   session.showStreamThumbnails = showStreamThumbnails;
 }
 
-function getAllData() {
+async function getAllData() {
+  const { ACCESS_TOKEN } = await LOCAL_STORAGE.get("ACCESS_TOKEN");
+  if (ACCESS_TOKEN) {
+    TWITCH_API.setAccessToken(ACCESS_TOKEN)
+    isAuthenticated = true
+  }
   getLocalSettings();
   return getFollowedStreams().then(() => getLiveStreams());
 }
@@ -121,6 +136,7 @@ let session = {
 function getSession() {
   return session;
 }
+
 
 (() => {
   getAllData().then(() => {

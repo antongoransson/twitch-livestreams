@@ -7,10 +7,11 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "firefox": "web-ext run"
+    "firefox": "web-ext run",
+    "build": "web-ext build"
   },
   "author": "",
   "dependencies": {
-    "web-ext": "^4.1.0"
+    "web-ext": "^6.5.0"
   }
 }

@@ -2,12 +2,21 @@
 /* global CLIENT_ID */
 
 const BASE_URL = "https://api.twitch.tv/helix/";
+let ACCESS_TOKEN;
 async function doGetRequest(url) {
-  const headers = new Headers({
-    "Client-ID": CLIENT_ID
-  });
-  const res = await fetch(url, { headers }).then(res => res.json());
-  return res;
+  try {
+    const headers = new Headers({
+      "Client-ID": CLIENT_ID,
+      "Authorization": `Bearer ${ACCESS_TOKEN}`
+    });
+    const res = await fetch(url, { headers }).then(res => res.json());
+    if (res.status === 401) {
+      LOCAL_STORAGE.set({ ACCESS_TOKEN: undefined });
+    }
+    return res;
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 function getFollowedStreamsUrl(data) {
@@ -22,7 +31,21 @@ function getUrlParametersAsString(liveStreams, attrName, keyName) {
 }
 
 const TWITCH_API = {
-  getGames: async function(unknownGames) {
+  authorize: async function () {
+    const redirectUrl = browser.identity.getRedirectURL()
+    const url = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUrl}&response_type=token&scope=user:read:email&force_verify=true`
+    try {
+      const res = await browser.identity.launchWebAuthFlow({ url, interactive: true })
+      ACCESS_TOKEN = res.split("access_token=")[1].split("&")[0]
+      LOCAL_STORAGE.set({ ACCESS_TOKEN });
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  },
+
+  getGames: async function (unknownGames) {
     const gameIds = getUrlParametersAsString(unknownGames, "id", "game_id");
     const gamesUrl = `${BASE_URL}games?${gameIds}`;
     const gamesInfo = await doGetRequest(gamesUrl);
@@ -34,14 +57,13 @@ const TWITCH_API = {
     return groupedGamesById;
   },
 
-  getFollowedStreams: async function(fromId) {
+  getFollowedStreams: async function (fromId) {
     let allFollowedStreams = [];
     let pagination = "";
     let followedStreams;
     do {
-      const followedStreamsUrl = `${BASE_URL}users/follows?from_id=${fromId}&first=100${
-        pagination ? "&after=" + pagination.cursor : ""
-      }`;
+      const followedStreamsUrl = `${BASE_URL}users/follows?from_id=${fromId}&first=100${pagination ? "&after=" + pagination.cursor : ""
+        }`;
       followedStreams = await doGetRequest(followedStreamsUrl);
       pagination = followedStreams.pagination;
       allFollowedStreams.push(...followedStreams.data);
@@ -52,7 +74,7 @@ const TWITCH_API = {
     return allFollowedStreams;
   },
 
-  getLiveFollowedStreams: async function(allFollowedStreams) {
+  getLiveFollowedStreams: async function (allFollowedStreams) {
     const MAX_SIZE = 100;
     let start = 0;
     let end = MAX_SIZE;
@@ -72,12 +94,16 @@ const TWITCH_API = {
     return allLiveFollowedStreams;
   },
 
-  getUserId: async function(twitchUsername) {
-    const getUserInfoUrl = `${BASE_URL}users?login=${twitchUsername}`;
+  getUserId: async function () {
+    const getUserInfoUrl = `${BASE_URL}users`;
     const userInfo = await doGetRequest(getUserInfoUrl);
     if (userInfo.data && userInfo.data.length > 0) {
       return userInfo.data[0].id;
     }
     return null;
+  },
+
+  setAccessToken: function (accessToken) {
+    ACCESS_TOKEN = accessToken;
   }
 };

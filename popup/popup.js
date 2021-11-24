@@ -1,5 +1,5 @@
 const DEFAULT_ERROR_MESSAGE =
-  "Make sure you have put the correct username in the extension settings";
+  "Make sure you are logged in";
 const BOX_ART_WIDTH = 60;
 const BOX_ART_HEIGHT = 80;
 const STREAM_LIST = document.getElementById("dropdown-content");
@@ -11,15 +11,15 @@ function createGameContainer(gameName, boxArtUrl) {
   const gameContainerClone = gameContainerTemplate.content.cloneNode(true);
   const gameTitleLink = gameContainerClone.querySelector("#game-title");
   const gameUrl = `https://www.twitch.tv/directory/game/${gameName}`;
-  
+
   gameTitleLink.textContent = gameName;
   gameTitleLink.setAttribute("title", gameName);
   gameTitleLink.setAttribute("href", gameUrl);
   if (boxArtUrl) {
     const gameBoxLogo = gameContainerClone.querySelector("#box-logo");
     boxArtUrl = boxArtUrl
-    .replace("{width}", BOX_ART_WIDTH)
-    .replace("{height}", BOX_ART_HEIGHT);
+      .replace("{width}", BOX_ART_WIDTH)
+      .replace("{height}", BOX_ART_HEIGHT);
     gameBoxLogo.setAttribute("src", boxArtUrl);
     gameBoxLogo.setAttribute("title", gameName);
   }
@@ -35,12 +35,12 @@ function createStreamContainer(stream, showStreamThumbnails) {
     .content.cloneNode(true);
   const streamLink = streamContainer.querySelector("#stream-link");
   const viewCount = streamContainer.querySelector("#stream-view-count");
-  
+
   if (showStreamThumbnails) {
     const thumbnail = streamContainer.querySelector("#thumbnail");
     const thumbnailUrl = stream.thumbnail_url
-    .replace("{width}", 50)
-    .replace("{height}", 50);
+      .replace("{width}", 80)
+      .replace("{height}", 50);
     thumbnail.setAttribute("src", thumbnailUrl);
   }
   const trimmedUserName = stream.user_name.replace(/\s+/g, "");
@@ -100,7 +100,7 @@ function createStreamList(result) {
   const sortedGames = Object.keys(liveFollowedStreams).sort((a, b) =>
     gameNames[a].name.localeCompare(gameNames[b].name)
   );
-  
+
   sortedGames.forEach(key => {
     let { name: gameName, boxArtUrl } = gameNames[key];
     if (!showGameBoxArt) {
@@ -118,8 +118,12 @@ function createStreamList(result) {
 
 async function getSession() {
   const BACKGROUND_PAGE = await browser.runtime.getBackgroundPage();
-  const result = BACKGROUND_PAGE.getSession();
-  if (result.userName === "" || result.userId === null) {
+  const isLoggedIn = await BACKGROUND_PAGE.authorize();
+  if (!isLoggedIn) {
+    return
+  }
+  const result = await BACKGROUND_PAGE.getSession();
+  if (!result.userId) {
     const updatedResult = await BACKGROUND_PAGE.getAllData();
     if (updatedResult === null || updatedResult.userId === "") {
       showErrorMessage();
