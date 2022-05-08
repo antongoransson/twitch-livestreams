@@ -104,6 +104,10 @@ span.stream-view-count {
   visibility: visible;
 }
 
+.stream-started-at {
+  text-align: left;
+}
+
 /* Loader from https://loading.io/css/ */
 .lds-hourglass {
   display: inline-block;

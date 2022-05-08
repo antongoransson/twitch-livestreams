@@ -1,4 +1,3 @@
-const TWITCH_USERNAME = "twitchUsername"
 const SHOW_GAME_BOX_ART = "showGameBoxArt"
 const SHOW_STREAM_THUMBNAILS = "showStreamThumbnails"
 function saveOptions(e) {
@@ -22,8 +21,12 @@ function restoreOptions() {
   }
 
   function setShowStreamThumbnails(result) {
-    document.querySelector(`#${SHOW_STREAM_THUMBNAILS}`).checked =
-      result[SHOW_STREAM_THUMBNAILS] || "";
+    const defaultValue = true;
+    let checkboxValue = result[SHOW_STREAM_THUMBNAILS];
+    if (checkboxValue === undefined) {
+      checkboxValue = defaultValue;
+    }
+    document.querySelector(`#${SHOW_STREAM_THUMBNAILS}`).checked = checkboxValue
   }
 
   function onError(error) {

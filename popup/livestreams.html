@@ -7,7 +7,7 @@
 </head>
 
 <body>
-  <template>
+  <template id='game-container-template'>
     <div class="game-container">
       <a id="game-logo-link" href="game_url">
         <img id="box-logo" class="box-art-logo" />
@@ -18,16 +18,24 @@
     </div>
   </template>
 
-  <template>
+  <template id="stream-container-template">
     <div id="stream-container" class="stream-container">
       <div class="stream-link-container">
         <a class="stream-link tooltip" id="stream-link" href="stream_url">
           StreamerUserName
-          <span class="tooltiptext" id="tooltiptext">StreamTitle</span>
+          <span class="tooltiptext" name="tooltiptext" id="tooltiptext">
+            <div class="tooltip-stream-title" id="tooltip-stream-title">StreamTitle</div>
+            <br/>
+            <img id="streamer-thumbnail"/>
+            <div class="stream-started-at">
+              <span class="dot"></span>
+              <span class="tooltip-stream-started-at" id="tooltip-stream-started-at">StreamStartedAt</span>
+            </div>
+          </span>
         </a>
       </div>
       <span class="stream-view-count" id="stream-view-count">Nbr</span>
-      <img id="thumbnail" class="thumbnail" />
+      <img id="gamethumbnail" class="gamethumbnail" />
     </div>
   </template>
 
@@ -40,6 +48,7 @@
     <div class="hidden" id="error"></div>
     <div class="lds-hourglass" id="spinning-loader"></div>
   </div>
+  <script src="elementCreator.js"></script>
   <script src="popup.js"></script>
 </body>
 

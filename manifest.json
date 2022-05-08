@@ -24,5 +24,9 @@
     "gecko" : {
       "id": "{a096669a-e6c6-4ecd-90ea-0a05be091d72}"
     }
-  }
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "browser_style": true
+  }  
 }

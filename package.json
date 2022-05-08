@@ -1,9 +1,10 @@
 {
   "name": "twitch-livestreams",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "devDependencies": {
-    "eslint": "^6.8.0"
+    "eslint": "^8.15.0",
+    "web-ext": "^6.8.0"
   },
   "scripts": {
     "lint": "eslint .",
@@ -11,7 +12,9 @@
     "build": "web-ext build"
   },
   "author": "",
-  "dependencies": {
-    "web-ext": "^6.5.0"
-  }
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/antongoransson/twitch-livestreams"
+  },
+  "license": "MIT"
 }

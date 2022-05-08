@@ -1,5 +1,5 @@
-/* global TWITCH_API */
-/* exported getSession */
+/* global TwitchApi */
+/* exported getSession, authorize */
 const LOCAL_STORAGE = browser.storage.local;
 const BROWSER_ACTION = browser.browserAction;
 
@@ -11,10 +11,10 @@ let isAuthenticated = false;
 async function authorize() {
   const { ACCESS_TOKEN } = await LOCAL_STORAGE.get("ACCESS_TOKEN");
   if (ACCESS_TOKEN === undefined) {
-    const successfulAuthentication = await TWITCH_API.authorize();
+    const successfulAuthentication = await TwitchApi.authorize();
     isAuthenticated = successfulAuthentication;
   } else {
-    TWITCH_API.setAccessToken(ACCESS_TOKEN)
+    TwitchApi.setAccessToken(ACCESS_TOKEN)
     isAuthenticated = true;
   }
   return isAuthenticated;
@@ -29,7 +29,7 @@ async function getGames(liveStreams) {
   if (unknownGames.length === 0) {
     return savedGamesInfo;
   }
-  const groupedGamesInfo = await TWITCH_API.getGames(unknownGames);
+  const groupedGamesInfo = await TwitchApi.getGames(unknownGames);
   const unknownGame = {
     name: "Unknown Game",
     boxArtUrl:
@@ -65,7 +65,7 @@ async function getUserId() {
     twitchUserId = localTwitchUserId;
   }
   if (!twitchUserId) {
-    twitchUserId = await TWITCH_API.getUserId();
+    twitchUserId = await TwitchApi.getUserId();
   }
   session.userId = twitchUserId;
   LOCAL_STORAGE.set({ twitchUserId })
@@ -79,14 +79,14 @@ async function getFollowedStreams() {
     BROWSER_ACTION.setBadgeText({ text: `${0}` });
     return null;
   }
-  const allFollowedStreams = await TWITCH_API.getFollowedStreams(fromId);
+  const allFollowedStreams = await TwitchApi.getFollowedStreams(fromId);
   session.followedStreams = allFollowedStreams;
   return allFollowedStreams;
 }
 
 async function getLiveFollowedStreams() {
   const allFollowedStreams = session.followedStreams;
-  const liveFollowedStreams = await TWITCH_API.getLiveFollowedStreams(
+  const liveFollowedStreams = await TwitchApi.getLiveFollowedStreams(
     allFollowedStreams
   );
   return liveFollowedStreams;
@@ -114,7 +114,7 @@ async function getLocalSettings() {
 async function getAllData() {
   const { ACCESS_TOKEN } = await LOCAL_STORAGE.get("ACCESS_TOKEN");
   if (ACCESS_TOKEN) {
-    TWITCH_API.setAccessToken(ACCESS_TOKEN)
+    TwitchApi.setAccessToken(ACCESS_TOKEN)
     isAuthenticated = true
   }
   getLocalSettings();

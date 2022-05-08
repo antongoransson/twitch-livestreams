@@ -1,53 +1,33 @@
+/* global ElementCreator, getTimeDiffUntilNowString */
 const DEFAULT_ERROR_MESSAGE =
   "Make sure you are logged in";
-const BOX_ART_WIDTH = 60;
-const BOX_ART_HEIGHT = 80;
 const STREAM_LIST = document.getElementById("dropdown-content");
 const ERROR_MESSAGE = document.getElementById("error");
 const LOADER = document.getElementById("spinning-loader");
 
 function createGameContainer(gameName, boxArtUrl) {
-  const gameContainerTemplate = document.getElementsByTagName("template")[0];
-  const gameContainerClone = gameContainerTemplate.content.cloneNode(true);
-  const gameTitleLink = gameContainerClone.querySelector("#game-title");
+  const gameContainer = document.querySelector("#game-container-template").content.cloneNode(true);
   const gameUrl = `https://www.twitch.tv/directory/game/${gameName}`;
-
-  gameTitleLink.textContent = gameName;
-  gameTitleLink.setAttribute("title", gameName);
-  gameTitleLink.setAttribute("href", gameUrl);
+  ElementCreator.createGameTitleLink(gameContainer, gameName, gameUrl)
   if (boxArtUrl) {
-    const gameBoxLogo = gameContainerClone.querySelector("#box-logo");
-    boxArtUrl = boxArtUrl
-      .replace("{width}", BOX_ART_WIDTH)
-      .replace("{height}", BOX_ART_HEIGHT);
-    gameBoxLogo.setAttribute("src", boxArtUrl);
-    gameBoxLogo.setAttribute("title", gameName);
+    ElementCreator.createBoxArtLogo(gameContainer, boxArtUrl, gameName)
   }
-  gameContainerClone
+  gameContainer
     .querySelector("#game-logo-link")
     .setAttribute("href", gameUrl);
-  return gameContainerClone;
+  return gameContainer;
 }
 
 function createStreamContainer(stream, showStreamThumbnails) {
   const streamContainer = document
-    .getElementsByTagName("template")[1]
+    .querySelector("#stream-container-template")
     .content.cloneNode(true);
-  const streamLink = streamContainer.querySelector("#stream-link");
-  const viewCount = streamContainer.querySelector("#stream-view-count");
-
   if (showStreamThumbnails) {
-    const thumbnail = streamContainer.querySelector("#thumbnail");
-    const thumbnailUrl = stream.thumbnail_url
-      .replace("{width}", 80)
-      .replace("{height}", 50);
-    thumbnail.setAttribute("src", thumbnailUrl);
+    ElementCreator.createStreamThumbnail(streamContainer, stream)
   }
-  const trimmedUserName = stream.user_name.replace(/\s+/g, "");
-  streamLink.childNodes[0].textContent = stream.user_name;
-  streamLink.setAttribute("href", `https://www.twitch.tv/${trimmedUserName}`);
-  streamContainer.querySelector("#tooltiptext").textContent = stream.title;
-  viewCount.textContent = stream.viewer_count;
+  ElementCreator.createStreamLink(streamContainer, stream);
+  ElementCreator.createTooltip(streamContainer, stream);
+  ElementCreator.createViewCount(streamContainer, stream);
   return streamContainer;
 }
 
@@ -101,14 +81,14 @@ function createStreamList(result) {
     gameNames[a].name.localeCompare(gameNames[b].name)
   );
 
-  sortedGames.forEach(key => {
-    let { name: gameName, boxArtUrl } = gameNames[key];
+  sortedGames.forEach(game => {
+    let { name: gameName, boxArtUrl } = gameNames[game];
     if (!showGameBoxArt) {
       boxArtUrl = null;
     }
     const gameContainerClone = createGameContainer(gameName, boxArtUrl);
     const gameCategory = gameContainerClone.querySelector("#game-info");
-    liveFollowedStreams[key].forEach(stream => {
+    liveFollowedStreams[game].forEach(stream => {
       gameCategory.appendChild(createStreamContainer(stream, showStreamThumbnails));
     });
     STREAM_LIST.appendChild(gameContainerClone);
@@ -134,6 +114,17 @@ async function getSession() {
   return result;
 }
 
+function startLiveSinceInterval() {
+  setInterval(() => {
+    const tooltips = document.getElementsByName('tooltiptext');
+    for (let i = 0; i < tooltips.length; i++) {
+      const tooltip = tooltips[i];
+      const streamStartedAt = tooltip.dataset.startedAt;
+      tooltip.querySelector('#tooltip-stream-started-at').textContent = getTimeDiffUntilNowString(streamStartedAt);
+    }
+  }, 1000);
+}
+
 async function main() {
   ERROR_MESSAGE.setAttribute("class", "hidden");
   const result = await getSession();
@@ -143,6 +134,7 @@ async function main() {
   createStreamList(result);
   registerRefreshButton();
   registerTotalLiveStreamsInfo(result);
+  startLiveSinceInterval();
 }
 
 main();

@@ -1,5 +1,5 @@
-/* exported TWITCH_API */
-/* global CLIENT_ID */
+/* exported TwitchApi */
+/* global CLIENT_ID, LOCAL_STORAGE */
 
 const BASE_URL = "https://api.twitch.tv/helix/";
 let ACCESS_TOKEN;
@@ -30,7 +30,7 @@ function getUrlParametersAsString(liveStreams, attrName, keyName) {
     .join("");
 }
 
-const TWITCH_API = {
+const TwitchApi = {
   authorize: async function () {
     const redirectUrl = browser.identity.getRedirectURL()
     const url = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUrl}&response_type=token&force_verify=true`
