@@ -1,20 +1,19 @@
 /* global ElementCreator, getTimeDiffUntilNowString */
-const DEFAULT_ERROR_MESSAGE =
-  "Make sure you are logged in";
+const DEFAULT_ERROR_MESSAGE = "Make sure you are logged in";
 const STREAM_LIST = document.getElementById("dropdown-content");
 const ERROR_MESSAGE = document.getElementById("error");
 const LOADER = document.getElementById("spinning-loader");
 
 function createGameContainer(gameName, boxArtUrl) {
-  const gameContainer = document.querySelector("#game-container-template").content.cloneNode(true);
+  const gameContainer = document
+    .querySelector("#game-container-template")
+    .content.cloneNode(true);
   const gameUrl = `https://www.twitch.tv/directory/game/${gameName}`;
-  ElementCreator.createGameTitleLink(gameContainer, gameName, gameUrl)
+  ElementCreator.createGameTitleLink(gameContainer, gameName, gameUrl);
   if (boxArtUrl) {
-    ElementCreator.createBoxArtLogo(gameContainer, boxArtUrl, gameName)
+    ElementCreator.createBoxArtLogo(gameContainer, boxArtUrl, gameName);
   }
-  gameContainer
-    .querySelector("#game-logo-link")
-    .setAttribute("href", gameUrl);
+  gameContainer.querySelector("#game-logo-link").setAttribute("href", gameUrl);
   return gameContainer;
 }
 
@@ -23,7 +22,7 @@ function createStreamContainer(stream, showStreamThumbnails) {
     .querySelector("#stream-container-template")
     .content.cloneNode(true);
   if (showStreamThumbnails) {
-    ElementCreator.createStreamThumbnail(streamContainer, stream)
+    ElementCreator.createStreamThumbnail(streamContainer, stream);
   }
   ElementCreator.createStreamLink(streamContainer, stream);
   ElementCreator.createTooltip(streamContainer, stream);
@@ -47,8 +46,10 @@ function registerRefreshButton() {
 
 function registerTotalLiveStreamsInfo(result) {
   const totalLiveStreamsSpan = document.querySelector("#total-live-streams");
-  const totalLiveStreams = Object.values(result.liveFollowedStreams)
-    .reduce((acc, curr) => acc + curr.length, 0)
+  const totalLiveStreams = Object.values(result.liveFollowedStreams).reduce(
+    (acc, curr) => acc + curr.length,
+    0
+  );
   totalLiveStreamsSpan.textContent = totalLiveStreams;
 }
 
@@ -65,14 +66,19 @@ async function refreshStreams() {
     }
   }
   LOADER.setAttribute("class", "lds-hourglass");
-  toBeRemoved.forEach(c => STREAM_LIST.removeChild(c));
+  toBeRemoved.forEach((c) => STREAM_LIST.removeChild(c));
   const result = await BACKGROUND_PAGE.getAllData();
   refreshButton.setAttribute("class", "");
   createStreamList(result);
 }
 
 function createStreamList(result) {
-  const { liveFollowedStreams, gameNames, showGameBoxArt, showStreamThumbnails } = result;
+  const {
+    liveFollowedStreams,
+    gameNames,
+    showGameBoxArt,
+    showStreamThumbnails,
+  } = result;
   if (Object.keys(liveFollowedStreams).length === 0) {
     showErrorMessage("No followed streams are live");
     return;
@@ -81,15 +87,17 @@ function createStreamList(result) {
     gameNames[a].name.localeCompare(gameNames[b].name)
   );
 
-  sortedGames.forEach(game => {
+  sortedGames.forEach((game) => {
     let { name: gameName, boxArtUrl } = gameNames[game];
     if (!showGameBoxArt) {
       boxArtUrl = null;
     }
     const gameContainerClone = createGameContainer(gameName, boxArtUrl);
     const gameCategory = gameContainerClone.querySelector("#game-info");
-    liveFollowedStreams[game].forEach(stream => {
-      gameCategory.appendChild(createStreamContainer(stream, showStreamThumbnails));
+    liveFollowedStreams[game].forEach((stream) => {
+      gameCategory.appendChild(
+        createStreamContainer(stream, showStreamThumbnails)
+      );
     });
     STREAM_LIST.appendChild(gameContainerClone);
   });
@@ -100,7 +108,7 @@ async function getSession() {
   const BACKGROUND_PAGE = await browser.runtime.getBackgroundPage();
   const isLoggedIn = await BACKGROUND_PAGE.authorize();
   if (!isLoggedIn) {
-    return
+    return;
   }
   const result = await BACKGROUND_PAGE.getSession();
   if (!result.userId) {
@@ -116,11 +124,12 @@ async function getSession() {
 
 function startLiveSinceInterval() {
   setInterval(() => {
-    const tooltips = document.getElementsByName('tooltiptext');
+    const tooltips = document.getElementsByName("tooltiptext");
     for (let i = 0; i < tooltips.length; i++) {
       const tooltip = tooltips[i];
       const streamStartedAt = tooltip.dataset.startedAt;
-      tooltip.querySelector('#tooltip-stream-started-at').textContent = getTimeDiffUntilNowString(streamStartedAt);
+      tooltip.querySelector("#tooltip-stream-started-at").textContent =
+        getTimeDiffUntilNowString(streamStartedAt);
     }
   }, 1000);
 }

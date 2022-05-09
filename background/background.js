@@ -14,7 +14,7 @@ async function authorize() {
     const successfulAuthentication = await TwitchApi.authorize();
     isAuthenticated = successfulAuthentication;
   } else {
-    TwitchApi.setAccessToken(ACCESS_TOKEN)
+    TwitchApi.setAccessToken(ACCESS_TOKEN);
     isAuthenticated = true;
   }
   return isAuthenticated;
@@ -33,12 +33,12 @@ async function getGames(liveStreams) {
   const unknownGame = {
     name: "Unknown Game",
     boxArtUrl:
-      "https://static-cdn.jtvnw.net/ttv-static/404_boxart-{width}x{height}.jpg"
+      "https://static-cdn.jtvnw.net/ttv-static/404_boxart-{width}x{height}.jpg",
   };
   const allGamesInfo = {
     ...savedGamesInfo,
     ...groupedGamesInfo,
-    0: unknownGame
+    0: unknownGame,
   };
   LOCAL_STORAGE.set({ gamesInfo: JSON.stringify(allGamesInfo) });
   return allGamesInfo;
@@ -54,7 +54,7 @@ async function getLiveStreamsInfo() {
   return {
     liveStreams: liveStreamsGroupedByGameId,
     gameNames,
-    nbrLive: liveStreams.length
+    nbrLive: liveStreams.length,
   };
 }
 
@@ -68,7 +68,7 @@ async function getUserId() {
     twitchUserId = await TwitchApi.getUserId();
   }
   session.userId = twitchUserId;
-  LOCAL_STORAGE.set({ twitchUserId })
+  LOCAL_STORAGE.set({ twitchUserId });
   return twitchUserId;
 }
 
@@ -90,7 +90,6 @@ async function getLiveFollowedStreams() {
     allFollowedStreams
   );
   return liveFollowedStreams;
-
 }
 
 async function getLiveStreams() {
@@ -106,7 +105,8 @@ async function getLiveStreams() {
 }
 
 async function getLocalSettings() {
-  const { showGameBoxArt = true, showStreamThumbnails } = await LOCAL_STORAGE.get();
+  const { showGameBoxArt = true, showStreamThumbnails } =
+    await LOCAL_STORAGE.get();
   session.showGameBoxArt = showGameBoxArt;
   session.showStreamThumbnails = showStreamThumbnails;
 }
@@ -114,8 +114,8 @@ async function getLocalSettings() {
 async function getAllData() {
   const { ACCESS_TOKEN } = await LOCAL_STORAGE.get("ACCESS_TOKEN");
   if (ACCESS_TOKEN) {
-    TwitchApi.setAccessToken(ACCESS_TOKEN)
-    isAuthenticated = true
+    TwitchApi.setAccessToken(ACCESS_TOKEN);
+    isAuthenticated = true;
   }
   getLocalSettings();
   return getFollowedStreams().then(() => getLiveStreams());
@@ -126,17 +126,16 @@ const initialState = {
   gameNames: [],
   liveFollowedStreams: [],
   userId: null,
-  userName: ""
+  userName: "",
 };
 
 let session = {
-  ...initialState
+  ...initialState,
 };
 
 function getSession() {
   return session;
 }
-
 
 (() => {
   getAllData().then(() => {

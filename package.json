@@ -4,10 +4,11 @@
   "description": "",
   "devDependencies": {
     "eslint": "^8.15.0",
+    "prettier": "^2.6.2",
     "web-ext": "^6.8.0"
   },
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint --fix . && prettier --write .",
     "firefox": "web-ext run",
     "build": "web-ext build"
   },

@@ -7,9 +7,9 @@ async function doGetRequest(url) {
   try {
     const headers = new Headers({
       "Client-ID": CLIENT_ID,
-      "Authorization": `Bearer ${ACCESS_TOKEN}`
+      Authorization: `Bearer ${ACCESS_TOKEN}`,
     });
-    const res = await fetch(url, { headers }).then(res => res.json());
+    const res = await fetch(url, { headers }).then((res) => res.json());
     if (res.status === 401) {
       LOCAL_STORAGE.set({ ACCESS_TOKEN: undefined });
     }
@@ -32,11 +32,14 @@ function getUrlParametersAsString(liveStreams, attrName, keyName) {
 
 const TwitchApi = {
   authorize: async function () {
-    const redirectUrl = browser.identity.getRedirectURL()
-    const url = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUrl}&response_type=token&force_verify=true`
+    const redirectUrl = browser.identity.getRedirectURL();
+    const url = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUrl}&response_type=token&force_verify=true`;
     try {
-      const res = await browser.identity.launchWebAuthFlow({ url, interactive: true })
-      ACCESS_TOKEN = res.split("access_token=")[1].split("&")[0]
+      const res = await browser.identity.launchWebAuthFlow({
+        url,
+        interactive: true,
+      });
+      ACCESS_TOKEN = res.split("access_token=")[1].split("&")[0];
       LOCAL_STORAGE.set({ ACCESS_TOKEN });
       return true;
     } catch (error) {
@@ -62,8 +65,9 @@ const TwitchApi = {
     let pagination = "";
     let followedStreams;
     do {
-      const followedStreamsUrl = `${BASE_URL}users/follows?from_id=${fromId}&first=100${pagination ? "&after=" + pagination.cursor : ""
-        }`;
+      const followedStreamsUrl = `${BASE_URL}users/follows?from_id=${fromId}&first=100${
+        pagination ? "&after=" + pagination.cursor : ""
+      }`;
       followedStreams = await doGetRequest(followedStreamsUrl);
       pagination = followedStreams.pagination;
       allFollowedStreams.push(...followedStreams.data);
@@ -90,7 +94,7 @@ const TwitchApi = {
       end = start + Math.min(totalFollowedStreams, MAX_SIZE);
       followedStreams = allFollowedStreams.slice(start, end);
     }
-    allLiveFollowedStreams.sort((a, b) => b.viewer_count - a.viewer_count)
+    allLiveFollowedStreams.sort((a, b) => b.viewer_count - a.viewer_count);
     return allLiveFollowedStreams;
   },
 
@@ -105,5 +109,5 @@ const TwitchApi = {
 
   setAccessToken: function (accessToken) {
     ACCESS_TOKEN = accessToken;
-  }
+  },
 };

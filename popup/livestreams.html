@@ -1,55 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link type="text/css" rel="stylesheet" href="livestreams.css" />
+  </head>
 
-<head>
-  <meta charset="utf-8" />
-  <link type="text/css" rel="stylesheet" href="livestreams.css" />
-</head>
-
-<body>
-  <template id='game-container-template'>
-    <div class="game-container">
-      <a id="game-logo-link" href="game_url">
-        <img id="box-logo" class="box-art-logo" />
-      </a>
-      <div class="game-info" id="game-info">
-        <a id="game-title" class="game-title" href="game_url">GameTitle</a>
-      </div>
-    </div>
-  </template>
-
-  <template id="stream-container-template">
-    <div id="stream-container" class="stream-container">
-      <div class="stream-link-container">
-        <a class="stream-link tooltip" id="stream-link" href="stream_url">
-          StreamerUserName
-          <span class="tooltiptext" name="tooltiptext" id="tooltiptext">
-            <div class="tooltip-stream-title" id="tooltip-stream-title">StreamTitle</div>
-            <br/>
-            <img id="streamer-thumbnail"/>
-            <div class="stream-started-at">
-              <span class="dot"></span>
-              <span class="tooltip-stream-started-at" id="tooltip-stream-started-at">StreamStartedAt</span>
-            </div>
-          </span>
+  <body>
+    <template id="game-container-template">
+      <div class="game-container">
+        <a id="game-logo-link" href="game_url">
+          <img id="box-logo" class="box-art-logo" />
         </a>
+        <div class="game-info" id="game-info">
+          <a id="game-title" class="game-title" href="game_url">GameTitle</a>
+        </div>
       </div>
-      <span class="stream-view-count" id="stream-view-count">Nbr</span>
-      <img id="gamethumbnail" class="gamethumbnail" />
-    </div>
-  </template>
+    </template>
 
-  <div id="dropdown-content">
-    <div id="refresh-button">
-      <span class="dot"></span>
-      <span id="total-live-streams">0</span>
-      <img class="hidden" id="refresh" src="../icons/refresh.png" title="Refresh" />
-    </div>
-    <div class="hidden" id="error"></div>
-    <div class="lds-hourglass" id="spinning-loader"></div>
-  </div>
-  <script src="elementCreator.js"></script>
-  <script src="popup.js"></script>
-</body>
+    <template id="stream-container-template">
+      <div id="stream-container" class="stream-container">
+        <div class="stream-link-container">
+          <a class="stream-link tooltip" id="stream-link" href="stream_url">
+            StreamerUserName
+            <span class="tooltiptext" name="tooltiptext" id="tooltiptext">
+              <div class="tooltip-stream-title" id="tooltip-stream-title">
+                StreamTitle
+              </div>
+              <br />
+              <img id="streamer-thumbnail" />
+              <div class="stream-started-at">
+                <span class="dot"></span>
+                <span
+                  class="tooltip-stream-started-at"
+                  id="tooltip-stream-started-at"
+                  >StreamStartedAt</span
+                >
+              </div>
+            </span>
+          </a>
+        </div>
+        <span class="stream-view-count" id="stream-view-count">Nbr</span>
+        <img id="gamethumbnail" class="gamethumbnail" />
+      </div>
+    </template>
 
+    <div id="dropdown-content">
+      <div id="refresh-button">
+        <span class="dot"></span>
+        <span id="total-live-streams">0</span>
+        <img
+          class="hidden"
+          id="refresh"
+          src="../icons/refresh.png"
+          title="Refresh"
+        />
+      </div>
+      <div class="hidden" id="error"></div>
+      <div class="lds-hourglass" id="spinning-loader"></div>
+    </div>
+    <script src="elementCreator.js"></script>
+    <script src="popup.js"></script>
+  </body>
 </html>

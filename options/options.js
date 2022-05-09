@@ -1,13 +1,16 @@
-const SHOW_GAME_BOX_ART = "showGameBoxArt"
-const SHOW_STREAM_THUMBNAILS = "showStreamThumbnails"
+const SHOW_GAME_BOX_ART = "showGameBoxArt";
+const SHOW_STREAM_THUMBNAILS = "showStreamThumbnails";
 function saveOptions(e) {
   e.preventDefault();
   browser.storage.local.set({
-    [SHOW_GAME_BOX_ART]: document.querySelector(`#${SHOW_GAME_BOX_ART}`).checked,
-    [SHOW_STREAM_THUMBNAILS]: document.querySelector(`#${SHOW_STREAM_THUMBNAILS}`).checked,
-    twitchUserId: null
+    [SHOW_GAME_BOX_ART]: document.querySelector(`#${SHOW_GAME_BOX_ART}`)
+      .checked,
+    [SHOW_STREAM_THUMBNAILS]: document.querySelector(
+      `#${SHOW_STREAM_THUMBNAILS}`
+    ).checked,
+    twitchUserId: null,
   });
-  browser.runtime.getBackgroundPage().then(page => page.getAllData());
+  browser.runtime.getBackgroundPage().then((page) => page.getAllData());
 }
 
 function restoreOptions() {
@@ -26,7 +29,8 @@ function restoreOptions() {
     if (checkboxValue === undefined) {
       checkboxValue = defaultValue;
     }
-    document.querySelector(`#${SHOW_STREAM_THUMBNAILS}`).checked = checkboxValue
+    document.querySelector(`#${SHOW_STREAM_THUMBNAILS}`).checked =
+      checkboxValue;
   }
 
   function onError(error) {
@@ -35,11 +39,11 @@ function restoreOptions() {
 
   [
     [SHOW_GAME_BOX_ART, setShowGameBoxart],
-    [SHOW_STREAM_THUMBNAILS, setShowStreamThumbnails]
+    [SHOW_STREAM_THUMBNAILS, setShowStreamThumbnails],
   ].forEach(([setting, setFunction]) => {
     const getting = browser.storage.local.get(setting);
     getting.then(setFunction, onError);
-  })
+  });
 }
 
 document.addEventListener("DOMContentLoaded", restoreOptions);
