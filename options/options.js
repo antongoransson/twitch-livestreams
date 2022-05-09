@@ -29,6 +29,7 @@ function restoreOptions() {
     if (checkboxValue === undefined) {
       checkboxValue = defaultValue;
     }
+    console.log("checkboxValue", checkboxValue);
     document.querySelector(`#${SHOW_STREAM_THUMBNAILS}`).checked =
       checkboxValue;
   }

@@ -1,6 +1,6 @@
 {
   "name": "twitch-livestreams",
-  "version": "1.1.0",
+  "version": "1.6.0",
   "description": "",
   "devDependencies": {
     "eslint": "^8.15.0",
@@ -17,5 +17,5 @@
     "type": "git",
     "url": "https://github.com/antongoransson/twitch-livestreams"
   },
-  "license": "MIT"
+  "license": "MOZILLA PUBLIC LICENSE, VERSION 2.0"
 }

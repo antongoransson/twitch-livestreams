@@ -76,6 +76,15 @@ span.stream-view-count {
   display: inline-block;
 }
 
+.user-image {
+  height: 16px;
+  width: 16px;
+  background-color: white;
+  border-radius: 50%;
+  display: inline-block;
+  margin-top: 5px;
+}
+
 .tooltip {
   position: relative;
   display: inline-block;

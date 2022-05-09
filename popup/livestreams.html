@@ -8,45 +8,45 @@
   <body>
     <template id="game-container-template">
       <div class="game-container">
-        <a id="game-logo-link" href="game_url">
-          <img id="box-logo" class="box-art-logo" />
+        <a name="game-logo-link" href="game_url">
+          <img name="box-logo" class="box-art-logo" />
         </a>
-        <div class="game-info" id="game-info">
-          <a id="game-title" class="game-title" href="game_url">GameTitle</a>
+        <div class="game-info" name="game-info">
+          <a name="game-title" class="game-title" href="game_url">GameTitle</a>
         </div>
       </div>
     </template>
 
     <template id="stream-container-template">
-      <div id="stream-container" class="stream-container">
+      <div name="stream-container" class="stream-container">
         <div class="stream-link-container">
-          <a class="stream-link tooltip" id="stream-link" href="stream_url">
+          <a class="stream-link tooltip" name="stream-link" href="stream_url">
             StreamerUserName
-            <span class="tooltiptext" name="tooltiptext" id="tooltiptext">
-              <div class="tooltip-stream-title" id="tooltip-stream-title">
+            <span class="tooltiptext" name="tooltiptext" name="tooltiptext">
+              <div class="tooltip-stream-title" name="tooltip-stream-title">
                 StreamTitle
               </div>
               <br />
-              <img id="streamer-thumbnail" />
+              <img name="streamer-thumbnail" />
               <div class="stream-started-at">
                 <span class="dot"></span>
                 <span
                   class="tooltip-stream-started-at"
-                  id="tooltip-stream-started-at"
+                  name="tooltip-stream-started-at"
                   >StreamStartedAt</span
                 >
               </div>
             </span>
           </a>
         </div>
-        <span class="stream-view-count" id="stream-view-count">Nbr</span>
-        <img id="gamethumbnail" class="gamethumbnail" />
+        <span class="stream-view-count" name="stream-view-count">Nbr</span>
+        <img name="gamethumbnail" class="gamethumbnail" />
       </div>
     </template>
 
     <div id="dropdown-content">
       <div id="refresh-button">
-        <span class="dot"></span>
+        <img src="../icons/user-circle.svg" class="user-image"/>
         <span id="total-live-streams">0</span>
         <img
           class="hidden"

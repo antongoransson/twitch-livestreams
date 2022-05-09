@@ -13,7 +13,9 @@ function createGameContainer(gameName, boxArtUrl) {
   if (boxArtUrl) {
     ElementCreator.createBoxArtLogo(gameContainer, boxArtUrl, gameName);
   }
-  gameContainer.querySelector("#game-logo-link").setAttribute("href", gameUrl);
+  gameContainer
+    .querySelector("[name=game-logo-link]")
+    .setAttribute("href", gameUrl);
   return gameContainer;
 }
 
@@ -55,7 +57,7 @@ function registerTotalLiveStreamsInfo(result) {
 
 async function refreshStreams() {
   const BACKGROUND_PAGE = await browser.runtime.getBackgroundPage();
-  const refreshButton = document.getElementById("refresh-button");
+  const refreshButton = document.querySelector("#refresh-button");
 
   refreshButton.setAttribute("class", "hidden");
   ERROR_MESSAGE.setAttribute("class", "hidden");
@@ -93,7 +95,7 @@ function createStreamList(result) {
       boxArtUrl = null;
     }
     const gameContainerClone = createGameContainer(gameName, boxArtUrl);
-    const gameCategory = gameContainerClone.querySelector("#game-info");
+    const gameCategory = gameContainerClone.querySelector("[name=game-info]");
     liveFollowedStreams[game].forEach((stream) => {
       gameCategory.appendChild(
         createStreamContainer(stream, showStreamThumbnails)
@@ -128,7 +130,7 @@ function startLiveSinceInterval() {
     for (let i = 0; i < tooltips.length; i++) {
       const tooltip = tooltips[i];
       const streamStartedAt = tooltip.dataset.startedAt;
-      tooltip.querySelector("#tooltip-stream-started-at").textContent =
+      tooltip.querySelector("[name=tooltip-stream-started-at]").textContent =
         getTimeDiffUntilNowString(streamStartedAt);
     }
   }, 1000);

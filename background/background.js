@@ -105,7 +105,7 @@ async function getLiveStreams() {
 }
 
 async function getLocalSettings() {
-  const { showGameBoxArt = true, showStreamThumbnails } =
+  const { showGameBoxArt = true, showStreamThumbnails = true } =
     await LOCAL_STORAGE.get();
   session.showGameBoxArt = showGameBoxArt;
   session.showStreamThumbnails = showStreamThumbnails;
