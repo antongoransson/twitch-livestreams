@@ -9,7 +9,9 @@ async function doGetRequest(url) {
       "Client-ID": CLIENT_ID,
       Authorization: `Bearer ${ACCESS_TOKEN}`,
     });
+    console.log("DOING GET REQUEST to URL", url, "WITH HEADERS :", headers)
     const res = await fetch(url, { headers }).then((res) => res.json());
+    console.log("GOT RESULT: ",res)
     if (res.status === 401) {
       LOCAL_STORAGE.set({ ACCESS_TOKEN: undefined });
     }
@@ -20,7 +22,8 @@ async function doGetRequest(url) {
 }
 
 function getFollowedStreamsUrl(data) {
-  const streamIds = getUrlParametersAsString(data, "user_id", "to_id");
+  const streamIds = getUrlParametersAsString(data, "user_id", "broadcaster_id");
+  console.log("GETTING FOLLOWEDSTREAMS URL", data)
   return `${BASE_URL}streams?${streamIds}&first=100`;
 }
 
@@ -33,7 +36,8 @@ function getUrlParametersAsString(liveStreams, attrName, keyName) {
 const TwitchApi = {
   authorize: async function () {
     const redirectUrl = browser.identity.getRedirectURL();
-    const url = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUrl}&response_type=token&force_verify=true`;
+    const scopes = encodeURIComponent("user:read:follows")
+    const url = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUrl}&scope=${scopes}&response_type=token&force_verify=true`;
     try {
       const res = await browser.identity.launchWebAuthFlow({
         url,
@@ -41,6 +45,7 @@ const TwitchApi = {
       });
       ACCESS_TOKEN = res.split("access_token=")[1].split("&")[0];
       LOCAL_STORAGE.set({ ACCESS_TOKEN });
+      console.log("Got token", ACCESS_TOKEN);
       return true;
     } catch (error) {
       console.error(error);
@@ -60,12 +65,12 @@ const TwitchApi = {
     return groupedGamesById;
   },
 
-  getFollowedStreams: async function (fromId) {
+  getFollowedStreams: async function (userId) {
     let allFollowedStreams = [];
     let pagination = "";
     let followedStreams;
     do {
-      const followedStreamsUrl = `${BASE_URL}users/follows?from_id=${fromId}&first=100${
+      const followedStreamsUrl = `${BASE_URL}channels/followed?user_id=${userId}&first=100${
         pagination ? "&after=" + pagination.cursor : ""
       }`;
       followedStreams = await doGetRequest(followedStreamsUrl);

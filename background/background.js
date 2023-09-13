@@ -73,13 +73,13 @@ async function getUserId() {
 }
 
 async function getFollowedStreams() {
-  const fromId = await getUserId();
-  if (!fromId) {
+  const userId = await getUserId();
+  if (!userId) {
     session = { ...initialState };
     BROWSER_ACTION.setBadgeText({ text: `${0}` });
     return null;
   }
-  const allFollowedStreams = await TwitchApi.getFollowedStreams(fromId);
+  const allFollowedStreams = await TwitchApi.getFollowedStreams(userId);
   session.followedStreams = allFollowedStreams;
   return allFollowedStreams;
 }
@@ -93,11 +93,11 @@ async function getLiveFollowedStreams() {
 }
 
 async function getLiveStreams() {
-  const fromId = await getUserId();
-  if (!fromId) {
+  const userId = await getUserId();
+  if (!userId) {
     return null;
   }
-  const { liveStreams, gameNames, nbrLive } = await getLiveStreamsInfo(fromId);
+  const { liveStreams, gameNames, nbrLive } = await getLiveStreamsInfo(userId);
   BROWSER_ACTION.setBadgeText({ text: `${nbrLive}` });
   session.liveFollowedStreams = liveStreams;
   session.gameNames = gameNames;

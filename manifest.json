@@ -2,7 +2,7 @@
   "description": "Minimalistic extension which adds a popup to the toolbar. After logging in to your twitch account you will see the streams you follow that are live right now. It is grouped by game and each stream is linked to.",
   "manifest_version": 2,
   "name": "TwitchLiveFollowedStreams",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "icons": {
     "32": "icons/twitch_32.png",
     "48": "icons/twitch_48.png"
